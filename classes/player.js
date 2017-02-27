@@ -46,20 +46,21 @@ class Player {
 
     this.lastDir = result
     this.setBanDir()
+
     return result
   }
 
   checkWalls(map) {
     var head = this.getHead()
-    if(head[0] == 0)  { return this.atLeftWall(head)    }
-    if(head[0] == 19) { return this.atRightWall(head)   }
-    if(head[1] == 0)  { return this.atTopWall(head)     }
-    if(head[1] == 19) { return this.atBottomWall(head)  }
+    if(head[0] == 0)  { return this.atLeftWall(head,map)    }
+    if(head[0] == (map.getWidth() - 1) ) { return this.atRightWall(head,map)   }
+    if(head[1] == 0)  { return this.atTopWall(head,map)     }
+    if(head[1] == (map.getHeight() - 1) ) { return this.atBottomWall(head,map)  }
     return false
   }
 
-  atTopWall(head) {
-    if(head[0] != 19) {
+  atTopWall(head,map) {
+    if(head[0] != (map.getWidth() - 1)) {
       this.nextDir = 'right'
       return true
     } else {
@@ -69,7 +70,7 @@ class Player {
     return false
   }
 
-  atBottomWall(head) {
+  atBottomWall(head,map) {
     if(head[0] != 0) {
       this.nextDir = 'left'
       return true
@@ -80,8 +81,8 @@ class Player {
     return false
   }
 
-  atRightWall(head) {
-    if(head[1] != 19) {
+  atRightWall(head,map) {
+    if(head[1] != (map.getHeight() - 1)) {
       this.nextDir = 'down'
       return true
     } else {
@@ -91,7 +92,7 @@ class Player {
     return false
   }
 
-  atLeftWall(head) {
+  atLeftWall(head,map) {
     if(head[1] != 0) {
       this.nextDir = 'up'
       return true

@@ -33,8 +33,9 @@ function move(data) {
       }
     }
   }
+  map.updateData(data)
   return {
-    move: self.calcMove(this.map),
+    move: self.calcMove(map),
     taunt: "Boop the snoot!",
   }
 }
