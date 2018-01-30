@@ -36,15 +36,18 @@ class Map {
 
   updateData(data) {
     this.grid = _.cloneDeep(this.resetGrid)
-    for(var i = 0;i<data.snakes.length;i++) {
-      var snake = data.snakes[i]
-      for(var j = 0;j<snake.coords.length;j++) {
-        var coord = snake.coords[j]
+    for(var i = 0;i<data.snakes.data.length;i++) {
+      var snake = data.snakes.data[i]
+      for(var j = 0;j<snake.body.data.length;j++) {
+        var coord = snake.body.data[j]
 
         //This is a snake
-        this.grid[coord[0]][coord[1]] = 2
+        this.grid[coord['x']][coord['y']] = 2
       }
     }
+
+    //Clear the display
+    process.stdout.write('\x1Bc')
 
     //Transpose and display matrix
     console.log(_.zip.apply(_, _.cloneDeep(this.grid)))

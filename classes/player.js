@@ -3,7 +3,7 @@ class Player {
     this.id             = snake.id
     this.hp             = snake.health_points
     this.name           = snake.name
-    this.coords         = snake.coords
+    this.body           = snake.body.data
     this.array_pos      = snake.array_pos
     this.nextDir        = false
     this.lastDir        = false
@@ -15,7 +15,7 @@ class Player {
     this.id         = snake.id
     this.hp         = snake.health_points
     this.name       = snake.name
-    this.coords     = snake.coords
+    this.body       = snake.body.data
   }
 
   getArrPos() {
@@ -23,15 +23,15 @@ class Player {
   }
 
   getHead() {
-    return this.coords[0]
+    return this.body[0]
   }
 
   getAss() {
-    return this.coords[this.coords.length - 1]
+    return this.body[this.body.length - 1]
   }
 
   getLength() {
-    return this.coords.length
+    return this.body.length
   }
 
   calcMove(map) {
@@ -52,15 +52,16 @@ class Player {
 
   checkWalls(map) {
     var head = this.getHead()
-    if(head[0] == 0)  { return this.atLeftWall(head,map)    }
-    if(head[0] == (map.getWidth() - 1) ) { return this.atRightWall(head,map)   }
-    if(head[1] == 0)  { return this.atTopWall(head,map)     }
-    if(head[1] == (map.getHeight() - 1) ) { return this.atBottomWall(head,map)  }
+    if(head['x'] == 0)  { return this.atLeftWall(head,map)    }
+    if(head['x'] == (map.getWidth() - 1) ) { return this.atRightWall(head,map)   }
+    if(head['y'] == 0)  { return this.atTopWall(head,map)     }
+    if(head['y'] == (map.getHeight() - 1) ) { return this.atBottomWall(head,map)  }
     return false
   }
 
   atTopWall(head,map) {
-    if(head[0] != (map.getWidth() - 1)) {
+    var head = this.getHead()
+    if(head['x'] != (map.getWidth() - 1)) {
       this.nextDir = 'right'
       return true
     } else {
@@ -71,7 +72,8 @@ class Player {
   }
 
   atBottomWall(head,map) {
-    if(head[0] != 0) {
+    var head = this.getHead()
+    if(head['x'] != 0) {
       this.nextDir = 'left'
       return true
     } else {
@@ -82,7 +84,8 @@ class Player {
   }
 
   atRightWall(head,map) {
-    if(head[1] != (map.getHeight() - 1)) {
+    var head = this.getHead()
+    if(head['y'] != (map.getHeight() - 1)) {
       this.nextDir = 'down'
       return true
     } else {
@@ -93,7 +96,8 @@ class Player {
   }
 
   atLeftWall(head,map) {
-    if(head[1] != 0) {
+    var head = this.getHead()
+    if(head['y'] != 0) {
       this.nextDir = 'up'
       return true
     } else {

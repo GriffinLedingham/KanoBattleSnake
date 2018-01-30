@@ -15,20 +15,20 @@ function start(game) {
 }
 
 function move(data) {
+  // This is our init state, set up all snakes here
   if( self == false ) {
-    for(var i = 0;i<data.snakes.length;i++) {
-      if(data.snakes[i].id == data.you) {
-        data.snakes[i].array_pos = i
-        self = new Player(data.snakes[i])
-        console.log('Init Snake')
+    for(var i = 0;i<data.snakes.data.length;i++) {
+      // Check if your snake is this one in the list
+      if(data.snakes.data[i].id == data.you.id) {
+        data.snakes.data[i].array_pos = i
+        self = new Player(data.you)
         break
       }
     }
   } else {
-    for(var i = 0;i<data.snakes.length;i++) {
-      if(data.snakes[i].id == data.you) {
-        self.updateSnake(data.snakes[i])
-        console.log('Update Snake')
+    for(var i = 0;i<data.snakes.data.length;i++) {
+      if(data.snakes.data[i].id == data.you.id) {
+        self.updateSnake(data.you)
         break
       }
     }
