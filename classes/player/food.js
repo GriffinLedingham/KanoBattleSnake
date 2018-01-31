@@ -1,4 +1,5 @@
 const PF = require('pathfinding')
+const _ = require('lodash')
 
 module.exports = {
 
@@ -78,20 +79,19 @@ module.exports = {
 
   getDirectionToFoodAStar: function(closestFood,legalDirs,pfGrid,canEatFood,head,tail) {
     var finder = new PF.AStarFinder()
-    var grid = new PF.Grid(pfGrid)
-
-    for(var i =0;i<pfGrid.length;i++) {
-      for(var j =0;j<pfGrid[0].length;j++) {
+    var grid = new PF.Grid(_.zip.apply(_, _.cloneDeep(pfGrid)))
+    for(var i = 0;i<grid.nodes.length;i++) {
+      for(var j = 0;j<grid.nodes[0].length;j++) {
         // This is a snek, set unwalkable
-        if(pfGrid[i][j] == 2) {
-          grid.setWalkableAt(i,j,false)
+        if(pfGrid[j][i] == 2) {
+          grid.setWalkableAt(j,i,false)
         }
         // This is food, maybe walkable
-        else if(pfGrid[i][j] == 1) {
+        else if(pfGrid[j][i] == 1) {
           if(canEatFood) {
-            grid.setWalkableAt(i,j,true)
+            grid.setWalkableAt(j,i,true)
           } else {
-            grid.setWalkableAt(i,j,false)
+            grid.setWalkableAt(j,i,false)
           }
         }
       }
@@ -102,7 +102,7 @@ module.exports = {
 
     var path = finder.findPath(head['x'], head['y'], closestFood['x'], closestFood['y'], grid)
 
-    if(path.length == 0) return legalDirs
+    if(path.length < 2) return legalDirs
 
     closestFood = {x:path[1][0], y:path[1][1]}
 
