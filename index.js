@@ -8,7 +8,7 @@ var map  = false
 function start(game) {
   map = new Map(game)
   return {
-    name: 'Kano',
+    name: 'LUL',
     color: '#DFAB2B',
   }
 }
