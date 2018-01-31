@@ -36,6 +36,8 @@ class Map {
 
   updateData(data) {
     this.grid = _.cloneDeep(this.resetGrid)
+
+    // Add all snakes to our map's grid
     for(var i = 0;i<data.snakes.data.length;i++) {
       var snake = data.snakes.data[i]
       for(var j = 0;j<snake.body.data.length;j++) {
@@ -45,6 +47,15 @@ class Map {
         this.grid[coord['x']][coord['y']] = 2
       }
     }
+
+    // Add all food to our map's grid
+    for(var i = 0;i<data.food.data.length;i++) {
+      var food = data.food.data[i]
+      this.grid[food['x']][food['y']] = 1
+    }
+
+    // Copy the food array to the map instance
+    this.food = data.food.data
 
     //Clear the display
     process.stdout.write('\x1Bc')
