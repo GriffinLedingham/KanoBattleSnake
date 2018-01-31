@@ -55,6 +55,7 @@ http.createServer((req, res) => {
   if (req.method !== 'POST') return respond(); // non-game requests
 
   let body = [];
+  let message = {};
   req.on('data', chunk => body.push(chunk));
   req.on('end', () => {
     body = JSON.parse(Buffer.concat(body).toString());
