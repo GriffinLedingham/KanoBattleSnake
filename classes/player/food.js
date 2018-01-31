@@ -81,7 +81,7 @@ module.exports = {
     var grid = new PF.Grid(pfGrid)
 
     for(var i =0;i<pfGrid.length;i++) {
-      for(var j =0;j<pfGrid.length[0];j++) {
+      for(var j =0;j<pfGrid[0].length;j++) {
         // This is a snek, set unwalkable
         if(pfGrid[i][j] == 2) {
           grid.setWalkableAt(i,j,false)
