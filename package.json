@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "9.4.0"
+  },
   "dependencies": {
     "lodash": "^4.17.4",
     "foreman": "^2.0.0",
