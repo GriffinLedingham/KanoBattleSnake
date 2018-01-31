@@ -2,7 +2,11 @@ const _ = require('lodash')
 
 class Map {
   constructor(game) {
-    this.id     = game.game_id
+    if(game.hasOwnProperty('game_id'))
+      this.id     = game.game_id
+    else
+      this.id     = game.id
+
     this.height = game.height
     this.width  = game.width
     this.grid   = []
@@ -30,7 +34,7 @@ class Map {
           this.resetGrid[i].push(0)
       }
     }
-    console.log(this.resetGrid)
+    // console.log(this.resetGrid)
     this.grid = _.cloneDeep(this.resetGrid)
   }
 
@@ -61,8 +65,8 @@ class Map {
     process.stdout.write('\x1Bc')
 
     //Transpose and display matrix
-    console.log(_.zip.apply(_, _.cloneDeep(this.grid)))
-    console.log('Update map.')
+    // console.log(_.zip.apply(_, _.cloneDeep(this.grid)))
+    // console.log('Update map.')
   }
 }
 

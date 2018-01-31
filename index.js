@@ -2,11 +2,9 @@ const http    = require('http')
 const Player  = require('./classes/player')
 const Map     = require('./classes/map')
 
-var self = false
-var map  = false
 
 function start(game) {
-  map = new Map(game)
+  var map = new Map(game)
   return {
     name: 'LUL',
     color: '#DFAB2B',
@@ -14,24 +12,15 @@ function start(game) {
 }
 
 function move(data) {
+  var self = false
+  var map = new Map(data)
   // This is our init state, set up all snakes here
-  if( self == false ) {
-    for(var i = 0;i<data.snakes.data.length;i++) {
-      // Check if your snake is this one in the list
-      if(data.snakes.data[i].id == data.you.id) {
-        data.snakes.data[i].array_pos = i
-        self = new Player(data.you)
-        break
-      }
-    }
-  } else {
-    // Snake is already initialized, let's update
-    // its instance data to prep for next move calc
-    for(var i = 0;i<data.snakes.data.length;i++) {
-      if(data.snakes.data[i].id == data.you.id) {
-        self.updateSnake(data.you)
-        break
-      }
+  for(var i = 0;i<data.snakes.data.length;i++) {
+    // Check if your snake is this one in the list
+    if(data.snakes.data[i].id == data.you.id) {
+      data.snakes.data[i].array_pos = i
+      self = new Player(data.you)
+      break
     }
   }
 

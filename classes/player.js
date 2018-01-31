@@ -273,7 +273,7 @@ class Player {
    * @param {string} reason The reason for banning the direction, for debug
    */
   addBanDir(dir,reason) {
-    if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
+    // if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
   }
 }
