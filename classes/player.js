@@ -1,3 +1,6 @@
+const foodHelper  = require('./player/food')
+const config      = require('./config')
+
 class Player {
   constructor(snake) {
     this.id             = snake.id
@@ -62,7 +65,7 @@ class Player {
       }
 
       // Check if snake is on any walls, ban any wall directions
-      this.checkWalls(map)
+      // this.checkWalls(map)
 
       // Check for collision points in all 3 valid directions
       this.checkImmediateCollision(map, allowEarlyFood)
@@ -70,15 +73,16 @@ class Player {
       // Find which food on the board is closest.
       // TODO: This algorithm should later find the closest w/
       // a valid path to it, using A*.
-      var closestFood = this.findClosestFood(map)
+      var closestFood = foodHelper.findClosestFood(map.food,this.getHead())
 
       // Get the opposite of banDirs to find all possible
       // move directions
       var legalDirs = this.getLegalDirs()
 
-      // Get all next directions we could take, simply via boolean
-      // logic
-      var possibleDirs = this.getDirectionToFood(closestFood,legalDirs)
+      var canEatFood = false
+      if(this.hp < config.minHealthToFindFood ) canEatFood = true
+      if(allowEarlyFood) canEatFood = true
+      var possibleDirs = foodHelper.getDirectionToFoodAStar(closestFood,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
 
       // If no boolean valid directions are available, retry for
       // looser constraints, otherwise break the while loop
@@ -104,38 +108,6 @@ class Player {
 
     // Return final result direction.
     return result
-  }
-
-  /**
-   * Naive find-closest-food. This does not care about
-   * having a valid path to the food, or snakes in the
-   * area. Simply mathematically closest fruit.
-   * @param  {object} map The map class instance of the current game
-   * @return {object}     Coords for the nearest food
-   */
-  findClosestFood(map) {
-    var foods = map.food
-    var head = this.getHead()
-
-    // Initial arbitrary value of the closest food, there
-    // will always be one closer than 1000..
-    var minDist = 1000
-    var closestCoords = {x:-1,y:-1}
-
-    for(var i = 0;i<foods.length;i++) {
-      // Sum the vertical and horizontal distance of the food to
-      // get our total "close-ness"
-      var thisDist = Math.abs(head['x'] - foods[i]['x']) + Math.abs(head['y'] - foods[i]['y'])
-
-      // If this food is closer, store it as new closest
-      if(thisDist < minDist) {
-        closestCoords = {x:foods[i]['x'], y: foods[i]['y']}
-        minDist = thisDist
-      }
-    }
-
-    // Return closest food
-    return closestCoords
   }
 
   /**
@@ -199,10 +171,10 @@ class Player {
     //        it's the snake's end piece. If so, we know that it won't
     //        be here next tick, so the space is actually safe (as along
     //        as they don't have a food within 1-tile's reach of their head)
-    if(safeSpace.indexOf(leftGrid) == -1) this.addBanDir('left','space is filled')
-    if(safeSpace.indexOf(rightGrid) == -1) this.addBanDir('right','space is filled')
-    if(safeSpace.indexOf(upGrid) == -1) this.addBanDir('up','space is filled')
-    if(safeSpace.indexOf(downGrid) == -1) this.addBanDir('down','space is filled')
+    if(safeSpace.indexOf(leftGrid) == -1 && !this.spaceIsAss(leftGrid)) this.addBanDir('left','space is filled')
+    if(safeSpace.indexOf(rightGrid) == -1 && !this.spaceIsAss(rightGrid)) this.addBanDir('right','space is filled')
+    if(safeSpace.indexOf(upGrid) == -1 && !this.spaceIsAss(upGrid)) this.addBanDir('up','space is filled')
+    if(safeSpace.indexOf(downGrid) == -1 && !this.spaceIsAss(downGrid)) this.addBanDir('down','space is filled')
   }
 
   /**
@@ -222,52 +194,6 @@ class Player {
   }
 
   /**
-   * Very naive algorithm to get the next move towards food. This
-   * should in future implement A* to get the next step along a
-   * found path to the relevant food.
-   *
-   * TODO: Convert this to A*
-   *
-   * @param  {object} closestFood The closest food item coordinates
-   * @param  {array} legalDirs    Array of all legal directions at this point
-   * @return {array}              Array of all legal direcitons towards food
-   *                              or a random move if no food possible.
-   */
-  getDirectionToFood(closestFood,legalDirs) {
-    var foodDirs = []
-    var head = this.getHead()
-
-    // Check food's position relative to snake head, and add valid directions to
-    // array of possible outcomes
-    if(closestFood['x'] < head['x'] && legalDirs.indexOf('left') != -1) foodDirs.push('left')
-    if(closestFood['x'] > head['x'] && legalDirs.indexOf('right') != -1) foodDirs.push('right')
-    if(closestFood['y'] > head['y'] && legalDirs.indexOf('down') != -1) foodDirs.push('down')
-    if(closestFood['y'] < head['y'] && legalDirs.indexOf('up') != -1) foodDirs.push('up')
-
-    // If the snake is in the same row or column as a food, calculate what direction
-    // will move us towards it.
-    if(closestFood['x'] == head['x'] && closestFood['y'] < head['y']) foodDirs.push('up')
-    if(closestFood['x'] == head['x'] && closestFood['y'] > head['y']) foodDirs.push('down')
-    if(closestFood['x'] > head['x'] && closestFood['y'] == head['y']) foodDirs.push('right')
-    if(closestFood['x'] < head['x'] && closestFood['y'] == head['y']) foodDirs.push('left')
-
-    var resultDirs = []
-
-    // Only pick food directions that overlap with directions that are not yet
-    // banned in our flow
-    for(var i in foodDirs) {
-      if(legalDirs.indexOf(foodDirs[i]) != -1) resultDirs.push(foodDirs[i])
-    }
-
-    // If no directions will point us to our nearest food, just return array
-    // of possible directions, ignoring food
-    if(resultDirs.length == 0) resultDirs = legalDirs
-
-    // Return all positions we have decided we can go
-    return resultDirs
-  }
-
-  /**
    * Add a direction to the list of banned dirs
    * @param {string} dir    The direction to ban
    * @param {string} reason The reason for banning the direction, for debug
@@ -275,6 +201,11 @@ class Player {
   addBanDir(dir,reason) {
     // if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
+  }
+
+  spaceIsAss(x,y) {
+    var ass = this.getAss()
+    return (x == ass.x && y == ass.y)
   }
 }
 

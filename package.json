@@ -13,8 +13,9 @@
     "node": "9.4.0"
   },
   "dependencies": {
-    "lodash": "^4.17.4",
     "foreman": "^2.0.0",
-    "nodemon": "^1.14.11"
+    "lodash": "^4.17.4",
+    "nodemon": "^1.14.11",
+    "pathfinding": "^0.4.18"
   }
 }
