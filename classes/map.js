@@ -47,10 +47,25 @@ class Map {
       for(var j = 0;j<snake.body.data.length;j++) {
         var coord = snake.body.data[j]
 
-        //This is a snake
+        // This is a snake.
+        //
+        // TODO: put this value into the grid one of following:
+        //          0 - Walkable
+        //          1 - Food
+        //          2 - Snake
+        //          3 - Own Head
+        //          4 - Own Tail
+        //          5 - Opp. Head
+        //          6 - Opp. Tail
+        //
+        //          Body data is what's being iterated on
+        //          First index of each body is a head
+        //          Last index of each body is a tail
+
         this.grid[coord['x']][coord['y']] = 2
       }
     }
+
 
     // Add all food to our map's grid
     for(var i = 0;i<data.food.data.length;i++) {

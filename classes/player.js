@@ -1,4 +1,5 @@
-const foodHelper = require('./player/food')
+const foodHelper  = require('./player/food')
+const config      = require('./config')
 
 class Player {
   constructor(snake) {
@@ -64,7 +65,7 @@ class Player {
       }
 
       // Check if snake is on any walls, ban any wall directions
-      this.checkWalls(map)
+      // this.checkWalls(map)
 
       // Check for collision points in all 3 valid directions
       this.checkImmediateCollision(map, allowEarlyFood)
@@ -79,7 +80,7 @@ class Player {
       var legalDirs = this.getLegalDirs()
 
       var canEatFood = false
-      if(this.hp < 20) canEatFood = true
+      if(this.hp < config.minHealthToFindFood ) canEatFood = true
       if(allowEarlyFood) canEatFood = true
       var possibleDirs = foodHelper.getDirectionToFoodAStar(closestFood,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
 
