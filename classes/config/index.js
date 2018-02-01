@@ -6,5 +6,5 @@ module.exports = {
   distanceToWaitFromFood: 10,
 
   // If we should match the lenght of longest snake
-  matchLongestSnake: true
+  matchLongestSnake: false
 }

@@ -78,6 +78,11 @@ class Player {
       // Find which food on the board is closest.
       // TODO: This algorithm should later find the closest w/
       // a valid path to it, using A*.
+      //
+      // TODO: Should use new hasPathToPoint to check if food
+      // has a path to any corner of the board. If it does not,
+      // this means the food is trapped, and we should avoid it
+      // and/or move on to a different food.
       var destPoint = foodHelper.findClosestFood(map.food,this.getHead())
 
       // Get the opposite of banDirs to find all possible
@@ -194,10 +199,20 @@ class Player {
   checkImmediateCollision(map,allowEarlyFood) {
     // Instantly ban the direction that we last came from, we
     // cannot ever go this way.
-    if(this.lastDir == 'up') this.addBanDir('down', 'last move')
-    if(this.lastDir == 'down') this.addBanDir('up','last move')
-    if(this.lastDir == 'left') this.addBanDir('right','last move')
-    if(this.lastDir == 'right') this.addBanDir('left','last move')
+    //
+    // TODO: This no longer works, because we aren't keeping
+    // snake's state from game to game. Do we need this? Snake
+    // looks to kill itself moving upwards on this replay:
+    //
+    // https://play.snakedown.com/app/replay/c1d5785d-7893-4fca-b311-5144a2bf6b2b
+    //
+    // I would think A*/checking for snakes ion grid would not allow
+    // this, but may be missing an edge case.
+    //
+    // if(this.lastDir == 'up') this.addBanDir('down', 'last move')
+    // if(this.lastDir == 'down') this.addBanDir('up','last move')
+    // if(this.lastDir == 'left') this.addBanDir('right','last move')
+    // if(this.lastDir == 'right') this.addBanDir('left','last move')
 
     var head = this.getHead()
 
