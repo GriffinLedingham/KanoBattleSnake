@@ -1,4 +1,5 @@
 const foodHelper  = require('./player/food')
+const moveHelper  = require('./player/movement')
 const config      = require('./config')
 
 class Player {
@@ -36,6 +37,10 @@ class Player {
     return this.body.length
   }
 
+  getHealth() {
+    return this.hp
+  }
+
   /**
    * Master function to run all snake calculations and
    * find the next direction to move.
@@ -43,7 +48,7 @@ class Player {
    * @return {string}     The direction our snake will move next
    */
   calcMove(map) {
-    var result
+    var result = false
     var retry = true
     var allowEarlyFood = false
     var retryCount = 0
@@ -73,16 +78,27 @@ class Player {
       // Find which food on the board is closest.
       // TODO: This algorithm should later find the closest w/
       // a valid path to it, using A*.
-      var closestFood = foodHelper.findClosestFood(map.food,this.getHead())
+      var destPoint = foodHelper.findClosestFood(map.food,this.getHead())
 
       // Get the opposite of banDirs to find all possible
       // move directions
       var legalDirs = this.getLegalDirs()
 
       var canEatFood = false
-      if(this.hp < config.minHealthToFindFood ) canEatFood = true
+
+      // Should our snake eat food by our rule set
+      if(this.shouldEatFood(map)) canEatFood = true
+
+      // Was our last pathfind attempt unsuccesful? Try
+      // again with less-strict requirements (early food)
       if(allowEarlyFood) canEatFood = true
-      var possibleDirs = foodHelper.getDirectionToFoodAStar(closestFood,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
+
+      // If we are idling, and are close enough to food,
+      // just loop on our tail for a bit.
+      if(!canEatFood && this.getPointDistance(this.getHead(),destPoint) < config.distanceToWaitFromFood) destPoint = this.getAss()
+
+      // Use A* to path find to given point
+      var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
 
       // If no boolean valid directions are available, retry for
       // looser constraints, otherwise break the while loop
@@ -93,7 +109,46 @@ class Player {
       // TODO: This will call our main logic/danger/weighting function,
       // with A* or whatever, to choose a best direction out of our possible
       // ones.
-      result = possibleDirs[Math.floor(Math.random()*possibleDirs.length)]
+      var head = this.getHead()
+      for(var i in possibleDirs) {
+        var newHead
+        // Get coords for where the head will be if moving
+        // this direction
+        switch(possibleDirs[i]) {
+          case 'up':
+            newHead = this.getUpCoords(head,map)
+            break;
+          case 'down':
+            newHead = this.getDownCoords(head,map)
+            break;
+          case 'left':
+            newHead = this.getLeftCoords(head,map)
+            break;
+          case 'right':
+            newHead = this.getRightCoords(head,map)
+            break;
+        }
+        // If this direction has a path to the map's corner
+        // accept it, and move that way
+        //
+        // TODO: This is where we'll check path weights etc.
+        // in the future
+        if(
+          moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map.grid,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:map.width-1,y:0},map.grid,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:map.height-1},map.grid,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:0},map.grid,canEatFood,newHead,this.getAss())
+        ) {
+          result = possibleDirs[i]
+          break
+        }
+      }
+
+      // Worst case, couldn't find any directions with path to
+      // map's corner. Pick a random one ¯\_(ツ)_/¯
+      if(result == false) {
+        result = possibleDirs[Math.floor(Math.random()*possibleDirs.length)]
+      }
 
       // Store this move to the class' last move instance var
       this.lastDir = result
@@ -156,13 +211,20 @@ class Player {
     //        We should switch this in future so that it time its
     //        A* path to arrive at food as low as possible, not start
     //        allowing eats at X health. This strategy is less optimal.
-    if(this.hp < 20 || allowEarlyFood) safeSpace.push(1)
+    if(this.shouldEatFood(map) || allowEarlyFood) safeSpace.push(1)
 
-    // Calculate all adjacent spaces to the snake
-    var leftGrid = map.grid[Math.max(head['x']-1,0)][head['y']]
-    var rightGrid = map.grid[Math.min(head['x']+1,map.grid.length-1)][head['y']]
-    var upGrid = map.grid[head['x']][Math.max(head['y']-1,0)]
-    var downGrid = map.grid[head['x']][Math.min(head['y']+1,map.grid[0].length-1)]
+    // Calculate all adjacent spaces to the snake, and their coords
+    var leftGridCoords = this.getLeftCoords(head,map)
+    var leftGrid = map.grid[leftGridCoords['x']][leftGridCoords['y']]
+
+    var rightGridCoords = this.getRightCoords(head,map)
+    var rightGrid = map.grid[rightGridCoords['x']][rightGridCoords['y']]
+
+    var upGridCoords = this.getUpCoords(head,map)
+    var upGrid = map.grid[upGridCoords['x']][upGridCoords['y']]
+
+    var downGridCoords = this.getDownCoords(head,map)
+    var downGrid = map.grid[downGridCoords['x']][downGridCoords['y']]
 
     // If any of the adjacent spaces aren't in the array of safe tiles,
     // ban them.
@@ -171,10 +233,10 @@ class Player {
     //        it's the snake's end piece. If so, we know that it won't
     //        be here next tick, so the space is actually safe (as along
     //        as they don't have a food within 1-tile's reach of their head)
-    if(safeSpace.indexOf(leftGrid) == -1 && !this.spaceIsAss(leftGrid)) this.addBanDir('left','space is filled')
-    if(safeSpace.indexOf(rightGrid) == -1 && !this.spaceIsAss(rightGrid)) this.addBanDir('right','space is filled')
-    if(safeSpace.indexOf(upGrid) == -1 && !this.spaceIsAss(upGrid)) this.addBanDir('up','space is filled')
-    if(safeSpace.indexOf(downGrid) == -1 && !this.spaceIsAss(downGrid)) this.addBanDir('down','space is filled')
+    if(safeSpace.indexOf(leftGrid) == -1 && (!this.spaceIsAss(leftGridCoords) || !this.canTouchTail())) this.addBanDir('left','space is filled')
+    if(safeSpace.indexOf(rightGrid) == -1 && (!this.spaceIsAss(rightGridCoords) || !this.canTouchTail())) this.addBanDir('right','space is filled')
+    if(safeSpace.indexOf(upGrid) == -1 && (!this.spaceIsAss(upGridCoords) || !this.canTouchTail())) this.addBanDir('up','space is filled')
+    if(safeSpace.indexOf(downGrid) == -1 && (!this.spaceIsAss(downGridCoords) || !this.canTouchTail())) this.addBanDir('down','space is filled')
   }
 
   /**
@@ -203,9 +265,67 @@ class Player {
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
   }
 
-  spaceIsAss(x,y) {
+  /**
+   * Check if the given space is our snake's tail
+   * @param  {object} coords Coords of the position to check
+   * @return {boolean}       If the coords are the snake's tail
+   */
+  spaceIsAss(coords) {
     var ass = this.getAss()
-    return (x == ass.x && y == ass.y)
+    return (coords.x == ass.x && coords.y == ass.y)
+  }
+
+  // Check if snake can touch tail yet (need to buffer
+  // by a couple after eating food)
+  canTouchTail() {
+    var result = false
+    if((100 - this.getHealth() - 2) >= this.getLength()) {
+      result = true
+    }
+    return result
+  }
+
+  /**
+   * Get distance to a point
+   * @param  {object} pA Point A
+   * @param  {object} pB Point B
+   * @return {int}    Distance between points
+   */
+  getPointDistance(pA,pB) {
+    return (Math.abs(pA.x-pB.x) + Math.abs(pA.y - pB.y))
+  }
+
+  /**
+   * Check if the snake should eat food. This
+   * will likely get larger as we add more constraints
+   * @param  {Map} map Current game's map instance
+   * @return {boolean}     If the snake should eat food
+   */
+  shouldEatFood(map) {
+    return (
+      (this.hp < config.minHealthToFindFood)
+      || (config.matchLongestSnake && (this.getLength() < map.getLongestSnake()))
+    )
+  }
+
+  // Get coords of the space left of head
+  getLeftCoords(head,map) {
+    return {x:Math.max(head['x']-1,0),y:head['y']}
+  }
+
+  // Get coords of the space right of head
+  getRightCoords(head,map) {
+    return {x:Math.min(head['x']+1,map.grid.length-1),y:head['y']}
+  }
+
+  // Get coords of the space up of head
+  getUpCoords(head,map) {
+    return {x:head['x'],y:Math.max(head['y']-1,0)}
+  }
+
+  // Get coords of the space down of head
+  getDownCoords(head,map) {
+    return {x:head['x'],y:Math.min(head['y']+1,map.grid[0].length-1)}
   }
 }
 
