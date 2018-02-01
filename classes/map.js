@@ -87,6 +87,10 @@ class Map {
     // console.log('Update map.')
   }
 
+  /**
+   * Return the longest snake's length in the map
+   * @return {int} Lenght of longest snake
+   */
   getLongestSnake() {
     var longestLength = 0
     for(var i in this.snakes) {
