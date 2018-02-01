@@ -80,7 +80,7 @@ class Player {
       var legalDirs = this.getLegalDirs()
 
       var canEatFood = false
-      if(this.hp < config.minHealthToFindFood ) canEatFood = true
+      if(this.shouldEatFood(map)) canEatFood = true
       if(allowEarlyFood) canEatFood = true
       if(!canEatFood && this.getPointDistance(this.getHead(),closestFood) < config.distanceToWaitFromFood) closestFood = this.getAss()
       var possibleDirs = foodHelper.getDirectionToFoodAStar(closestFood,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
@@ -157,7 +157,7 @@ class Player {
     //        We should switch this in future so that it time its
     //        A* path to arrive at food as low as possible, not start
     //        allowing eats at X health. This strategy is less optimal.
-    if(this.hp < config.minHealthToFindFood || allowEarlyFood) safeSpace.push(1)
+    if(this.shouldEatFood(map) || allowEarlyFood) safeSpace.push(1)
 
     // Calculate all adjacent spaces to the snake
     var leftGridCoords = {x:Math.max(head['x']-1,0),y:head['y']}
@@ -179,10 +179,10 @@ class Player {
     //        it's the snake's end piece. If so, we know that it won't
     //        be here next tick, so the space is actually safe (as along
     //        as they don't have a food within 1-tile's reach of their head)
-    if(safeSpace.indexOf(leftGrid) == -1 && !this.spaceIsAss(leftGridCoords)) this.addBanDir('left','space is filled')
-    if(safeSpace.indexOf(rightGrid) == -1 && !this.spaceIsAss(rightGridCoords)) this.addBanDir('right','space is filled')
-    if(safeSpace.indexOf(upGrid) == -1 && !this.spaceIsAss(upGridCoords)) this.addBanDir('up','space is filled')
-    if(safeSpace.indexOf(downGrid) == -1 && !this.spaceIsAss(downGridCoords)) this.addBanDir('down','space is filled')
+    if(safeSpace.indexOf(leftGrid) == -1 && (this.getLength() < 4 || !this.spaceIsAss(leftGridCoords))) this.addBanDir('left','space is filled')
+    if(safeSpace.indexOf(rightGrid) == -1 && (this.getLength() < 4 || !this.spaceIsAss(rightGridCoords))) this.addBanDir('right','space is filled')
+    if(safeSpace.indexOf(upGrid) == -1 && (this.getLength() < 4 || !this.spaceIsAss(upGridCoords))) this.addBanDir('up','space is filled')
+    if(safeSpace.indexOf(downGrid) == -1 && (this.getLength() < 4 || !this.spaceIsAss(downGridCoords))) this.addBanDir('down','space is filled')
   }
 
   /**
@@ -212,15 +212,16 @@ class Player {
   }
 
   spaceIsAss(coords) {
-    if(this.getLength() > 3) {
-      var ass = this.getAss()
-      return (coords.x == ass.x && coords.y == ass.y)
-    }
-    return false
+    var ass = this.getAss()
+    return (coords.x == ass.x && coords.y == ass.y)
   }
 
   getPointDistance(pA,pB) {
     return (Math.abs(pA.x-pB.x) + Math.abs(pA.y - pB.y))
+  }
+
+  shouldEatFood(map) {
+    return ((this.hp < config.minHealthToFindFood) || (this.getLength() < map.getLongestSnake()))
   }
 }
 
