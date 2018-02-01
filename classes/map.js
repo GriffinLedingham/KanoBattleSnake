@@ -76,12 +76,25 @@ class Map {
     // Copy the food array to the map instance
     this.food = data.food.data
 
+    // Copy the snake array to the map
+    this.snakes = data.snakes.data
+
     //Clear the display
     process.stdout.write('\x1Bc')
 
     //Transpose and display matrix
     // console.log(_.zip.apply(_, _.cloneDeep(this.grid)))
     // console.log('Update map.')
+  }
+
+  getLongestSnake() {
+    var longestLength = 0
+    for(var i in this.snakes) {
+      if(this.snakes[i].body.data.length > longestLength) {
+        longestLength = this.snakes[i].body.data.length
+      }
+    }
+    return longestLength
   }
 }
 
