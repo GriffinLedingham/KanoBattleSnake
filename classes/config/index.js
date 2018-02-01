@@ -1,3 +1,3 @@
 module.exports = {
-  minHealthToFindFood: 20
+  minHealthToFindFood: 30
 }

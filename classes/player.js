@@ -82,6 +82,7 @@ class Player {
       var canEatFood = false
       if(this.hp < config.minHealthToFindFood ) canEatFood = true
       if(allowEarlyFood) canEatFood = true
+      if(!canEatFood && this.getPointDistance(this.getHead(),closestFood) < 10) closestFood = this.getAss()
       var possibleDirs = foodHelper.getDirectionToFoodAStar(closestFood,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
 
       // If no boolean valid directions are available, retry for
@@ -156,7 +157,7 @@ class Player {
     //        We should switch this in future so that it time its
     //        A* path to arrive at food as low as possible, not start
     //        allowing eats at X health. This strategy is less optimal.
-    if(this.hp < 20 || allowEarlyFood) safeSpace.push(1)
+    if(this.hp < config.minHealthToFindFood || allowEarlyFood) safeSpace.push(1)
 
     // Calculate all adjacent spaces to the snake
     var leftGrid = map.grid[Math.max(head['x']-1,0)][head['y']]
@@ -206,6 +207,10 @@ class Player {
   spaceIsAss(x,y) {
     var ass = this.getAss()
     return (x == ass.x && y == ass.y)
+  }
+
+  getPointDistance(pA,pB) {
+    return (Math.abs(pA.x-pB.x) + Math.abs(pA.y - pB.y))
   }
 }
 
