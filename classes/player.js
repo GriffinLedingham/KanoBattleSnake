@@ -167,8 +167,10 @@ class Player {
       // map's corner or food, or tail.
       //
       // Pick a random one ¯\_(ツ)_/¯
-      if(result == false) {
+      if(result == false && retry) {
         result = legalDirs[Math.floor(Math.random()*legalDirs.length)]
+      } else if(result == false) {
+        retry = true
       }
 
       // Store this move to the class' last move instance var
@@ -283,7 +285,9 @@ class Player {
    * @param {string} reason The reason for banning the direction, for debug
    */
   addBanDir(dir,reason) {
-    if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
+    if(config.enableLogging) {
+      if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
+    }
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
   }
 
@@ -301,7 +305,7 @@ class Player {
   // by a couple after eating food)
   canTouchTail() {
     var result = false
-    if((100 - this.getHealth() - 3) >= this.getLength()) {
+    if((100 - this.getHealth() - 3) > this.getLength()) {
       result = true
     }
     return result

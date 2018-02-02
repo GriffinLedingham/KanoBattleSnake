@@ -16,5 +16,9 @@ module.exports = {
   // This currently makes our snake perform worse.
   // Might be better if it matched avg. lenght of all
   // snakes?
-  matchLongestSnake: false
+  matchLongestSnake: false,
+
+  // This enables banDir logging, and any other desired
+  // logs that may come up
+  enableLogging: false
 }

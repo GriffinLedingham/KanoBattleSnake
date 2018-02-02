@@ -14,6 +14,7 @@
 
 const _ = require('lodash')
 const PF = require('pathfinding')
+const config = require('./config')
 
 class Map {
   constructor(game) {
@@ -103,7 +104,9 @@ class Map {
     this.transposedGrid = _.zip.apply(_, _.cloneDeep(this.grid))
 
     //Clear the display
-    process.stdout.write('\x1Bc')
+    if(config.enableLogging) {
+      process.stdout.write('\x1Bc')
+    }
 
     //Transpose and display matrix
     // console.log(this.transposedGrid)
@@ -136,18 +139,29 @@ class Map {
    * @return {PF.Grid}         The PF.Grid instance to be use in path finder
    */
   getPathfinderGrid(canEatFood) {
+
     // Init new PF grid from transposed matrix
     var grid = new PF.Grid(this.transposedGrid)
     // i is the grid's horizontal x-plane
     for(var i = 0;i<grid.nodes.length;i++) {
       // j is the grid's vertical y plane
       for(var j = 0;j<grid.nodes[0].length;j++) {
+
+        // I have no fucking clue why this works.
+        // This is such a hack...
+        var gridTile
+        if(this.height > this.width) {
+          gridTile = this.transposedGrid[j][i]
+        } else {
+          gridTile = this.grid[i][j]
+        }
+
         // This is a snek, set unwalkable
-        if(this.transposedGrid[j][i] == 2) {
+        if(gridTile == 2) {
           grid.setWalkableAt(i,j,false)
         }
         // This is food, maybe walkable
-        else if(this.transposedGrid[j][i] == 1) {
+        else if(gridTile == 1) {
           if(canEatFood) {
             grid.setWalkableAt(i,j,true)
           } else {
@@ -156,6 +170,7 @@ class Map {
         }
       }
     }
+
     return grid
   }
 
