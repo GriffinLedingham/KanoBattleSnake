@@ -106,7 +106,7 @@ class Map {
     process.stdout.write('\x1Bc')
 
     //Transpose and display matrix
-    console.log(this.transposedGrid)
+    // console.log(this.transposedGrid)
     // console.log('Update map.')
   }
 
@@ -143,20 +143,40 @@ class Map {
       // j is the grid's vertical y plane
       for(var j = 0;j<grid.nodes[0].length;j++) {
         // This is a snek, set unwalkable
-        if(this.transposedGrid[j][i] == 2) {
-          grid.setWalkableAt(j,i,false)
+        if(this.grid[i][j] == 2) {
+          grid.setWalkableAt(i,j,false)
         }
         // This is food, maybe walkable
-        else if(this.transposedGrid[j][i] == 1) {
+        else if(this.grid[i][j] == 1) {
           if(canEatFood) {
-            grid.setWalkableAt(j,i,true)
+            grid.setWalkableAt(i,j,true)
           } else {
-            grid.setWalkableAt(j,i,false)
+            grid.setWalkableAt(i,j,false)
           }
         }
       }
     }
     return grid
+  }
+
+  printPathfinderGrid(canEatFood) {
+    // Init new PF grid from transposed matrix
+    var grid = this.getPathfinderGrid(canEatFood)
+
+    var printArr = []
+    // Loop over x direction
+    for(var i = 0;i<grid.nodes.length;i++) {
+      // Push a new horizontal row
+      printArr.push([])
+      for(var j = 0;j<grid.nodes[i].length;j++) {
+        if(grid.nodes[i][j].walkable) {
+          printArr[i].push(0)
+        } else {
+          printArr[i].push(1)
+        }
+      }
+    }
+    console.log(printArr)
   }
 }
 

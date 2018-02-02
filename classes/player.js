@@ -90,40 +90,39 @@ class Player {
       var closestFood = false
       var destPoint
 
-      // Find which food on the board is closest.
-      // TODO: This algorithm should later find the closest w/
-      // a valid path to it, using A*.
+      // Use A* to find closest food, by path distance
+      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
+
+      destPoint = closestFood.coords
+
+      // If a path to a nearest food exists, let's try and
+      // make our way over to it.
       //
-      // TODO: Should use new hasPathToPoint to check if food
-      // has a path to any corner of the board. If it does not,
-      // this means the food is trapped, and we should avoid it
-      // and/or move on to a different food.
-      destPoint = foodHelper.findClosestFood(map.food,this.getHead())
+      // If it does not exist, skip this logic block, and
+      // attempt to find a move to elsewhere on the grid
+      // that doesn't trap us.
+      if(destPoint != false) {
+        var canEatFood = false
 
-      // TODO: This is commented out as it is WIP A* food finding
-      // closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
-      // destPoint = closestFood.coords
+        // Should our snake eat food by our rule set
+        if(this.shouldEatFood(map,closestFood)) canEatFood = true
 
-      var canEatFood = false
+        // Was our last pathfind attempt unsuccesful? Try
+        // again with less-strict requirements (early food)
+        if(allowEarlyFood) canEatFood = true
 
-      // Should our snake eat food by our rule set
-      if(this.shouldEatFood(map,closestFood)) canEatFood = true
+        // If we are idling, and are close enough to food,
+        // just loop on our tail for a bit.
+        if(!canEatFood && closestFood.dist < config.distanceToWaitFromFood) destPoint = this.getAss()
 
-      // Was our last pathfind attempt unsuccesful? Try
-      // again with less-strict requirements (early food)
-      if(allowEarlyFood) canEatFood = true
+        // Use A* to path find to given point
+        var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,this.getHead(),this.getAss())
 
-      // If we are idling, and are close enough to food,
-      // just loop on our tail for a bit.
-      if(!canEatFood && this.getPointDistance(this.getHead(),destPoint) < config.distanceToWaitFromFood) destPoint = this.getAss()
-
-      // Use A* to path find to given point
-      var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,this.getHead(),this.getAss())
-
-      // If no boolean valid directions are available, retry for
-      // looser constraints, otherwise break the while loop
-      if(possibleDirs.length == 0) retry = true
-      else retry = false
+        // If no boolean valid directions are available, retry for
+        // looser constraints, otherwise break the while loop
+        if(possibleDirs.length == 0) retry = true
+        else retry = false
+      }
 
       // Randomize the direction to take of all possible ones.
       // TODO: This will call our main logic/danger/weighting function,
@@ -165,9 +164,11 @@ class Player {
       }
 
       // Worst case, couldn't find any directions with path to
-      // map's corner. Pick a random one ¯\_(ツ)_/¯
+      // map's corner or food, or tail.
+      //
+      // Pick a random one ¯\_(ツ)_/¯
       if(result == false) {
-        result = possibleDirs[Math.floor(Math.random()*possibleDirs.length)]
+        result = legalDirs[Math.floor(Math.random()*legalDirs.length)]
       }
 
       // Store this move to the class' last move instance var
@@ -282,7 +283,7 @@ class Player {
    * @param {string} reason The reason for banning the direction, for debug
    */
   addBanDir(dir,reason) {
-    // if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
+    if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
   }
 
@@ -300,7 +301,7 @@ class Player {
   // by a couple after eating food)
   canTouchTail() {
     var result = false
-    if((100 - this.getHealth() - 2) >= this.getLength()) {
+    if((100 - this.getHealth() - 3) >= this.getLength()) {
       result = true
     }
     return result
@@ -326,11 +327,14 @@ class Player {
     var distToClosestFood = closestFood.dist
 
     var conditional
+
+    // Closest food will only exist when using A* food
+    // finding. Otherwise default to naive method
     if(closestFood != false) {
       // Use A* distance to food to check when we need to
       // go fetch food.
       conditional = (
-        (this.hp < (distToClosestFood + this.getLength()))
+        (this.hp < (distToClosestFood + this.getLength() + config.foodSearchPaddingHP))
         || (config.matchLongestSnake && (this.getLength() < map.getLongestSnake()))
       )
     } else {
