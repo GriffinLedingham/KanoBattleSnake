@@ -129,6 +129,7 @@ class Player {
       // with A* or whatever, to choose a best direction out of our possible
       // ones.
       var head = this.getHead()
+
       for(var i in possibleDirs) {
         var newHead
         // Get coords for where the head will be if moving
@@ -305,7 +306,7 @@ class Player {
   // by a couple after eating food)
   canTouchTail() {
     var result = false
-    if((100 - this.getHealth() - 3) >= this.getLength()) {
+    if(this.length > 3 && this.getHealth()<100) {
       result = true
     }
     return result
