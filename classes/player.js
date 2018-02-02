@@ -305,7 +305,7 @@ class Player {
   // by a couple after eating food)
   canTouchTail() {
     var result = false
-    if((100 - this.getHealth() - 3) > this.getLength()) {
+    if((100 - this.getHealth() - 3) >= this.getLength()) {
       result = true
     }
     return result
