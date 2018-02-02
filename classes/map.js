@@ -143,11 +143,11 @@ class Map {
       // j is the grid's vertical y plane
       for(var j = 0;j<grid.nodes[0].length;j++) {
         // This is a snek, set unwalkable
-        if(this.grid[i][j] == 2) {
+        if(this.transposedGrid[j][i] == 2) {
           grid.setWalkableAt(i,j,false)
         }
         // This is food, maybe walkable
-        else if(this.grid[i][j] == 1) {
+        else if(this.transposedGrid[j][i] == 1) {
           if(canEatFood) {
             grid.setWalkableAt(i,j,true)
           } else {
@@ -159,10 +159,7 @@ class Map {
     return grid
   }
 
-  printPathfinderGrid(canEatFood) {
-    // Init new PF grid from transposed matrix
-    var grid = this.getPathfinderGrid(canEatFood)
-
+  printPathfinderGrid(grid) {
     var printArr = []
     // Loop over x direction
     for(var i = 0;i<grid.nodes.length;i++) {
