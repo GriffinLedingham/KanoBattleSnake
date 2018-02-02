@@ -1,4 +1,14 @@
-const _ = require('lodash')
+/**
+ * food.js
+ *
+ * This file's main purpose is to handle food operations.
+ * Finding nearest food to player, calculating food density
+ * in map areas, etc..
+ *
+ */
+
+const _           = require('lodash')
+const moveHelper  = require('../movement')
 
 module.exports = {
 
@@ -32,6 +42,44 @@ module.exports = {
   },
 
   /**
+   * A* find-closest-food.
+   * @param  {object} map The map class instance of the current game
+   * @return {object}     Coords for the nearest food
+   */
+  findClosestFoodAStar: function(foods,head,tail,map,canEatFood) {
+    // Initial arbitrary value of the closest food, there
+    // will always be one closer than 1000..
+    var minDist = 1000
+    var closestCoords = {x:-1,y:-1}
+
+    for(var i = 0;i<foods.length;i++) {
+      var food = foods[i]
+
+      var thisDist = moveHelper.getPathLengthToPoint(food,map,canEatFood,head,tail)
+
+      // Path doesn't exist, break out
+      if(thisDist == 0) continue
+
+      // TODO: See if this food has path to corners, if not
+      // also break out.
+
+      // If this food is closer, store it as new closest
+      if(thisDist < minDist) {
+        closestCoords = {x:food['x'], y: food['y']}
+        minDist = thisDist
+      }
+    }
+
+    // Return closest food
+    return {coords:closestCoords,dist:minDist}
+  },
+
+
+  /**
+  * -----------------------
+  * DEPRECATED
+  * -----------------------
+  *
   * Very naive algorithm to get the next move towards food. This
   * should in future implement A* to get the next step along a
   * found path to the relevant food.

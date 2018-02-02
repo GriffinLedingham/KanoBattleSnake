@@ -1,35 +1,27 @@
+/**
+ * movement.js
+ *
+ * This file is meant to handle the snake's main movement logic.
+ * This includes pathfinding, getting directions, etc.
+ *
+ */
+
 const PF = require('pathfinding')
-const _ = require('lodash')
 
 module.exports = {
-  getDirectionToPointAStar: function(destPoint,legalDirs,pfGrid,canEatFood,head,tail) {
-    var finder = new PF.AStarFinder()
-
-    // Build up A* grid for use
-    var grid = new PF.Grid(_.zip.apply(_, _.cloneDeep(pfGrid)))
-    for(var i = 0;i<grid.nodes.length;i++) {
-      for(var j = 0;j<grid.nodes[0].length;j++) {
-        // This is a snek, set unwalkable
-        if(pfGrid[j][i] == 2) {
-          grid.setWalkableAt(j,i,false)
-        }
-        // This is food, maybe walkable
-        else if(pfGrid[j][i] == 1) {
-          if(canEatFood) {
-            grid.setWalkableAt(j,i,true)
-          } else {
-            grid.setWalkableAt(j,i,false)
-          }
-        }
-      }
-    }
-
-    // Set our destination as walkable, as wel as our tail
-    grid.setWalkableAt(destPoint['x'],destPoint['y'],true)
-    grid.setWalkableAt(tail['x'],tail['y'],true)
-
-    // Find path to destPoint using A*
-    var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)
+  /**
+   * Get the snake's next direction to a point by A*
+   * @param  {object}  destPoint  The point to find a path to
+   * @param  {array}  legalDirs   Array of all valid directions not banned
+   * @param  {Map}  map           The map instance
+   * @param  {bool}  canEatFood   If the snake is allowed to eat food
+   * @param  {object}  head       The coords of the start position
+   * @param  {object}  tail       The snake's tail
+   * @return {bool}               If a path exists to dest
+   */
+  getDirectionToPointAStar: function(destPoint,legalDirs,map,canEatFood,head,tail) {
+    // Get the best A* path to our destination point
+    var path = this.getPathToPoint(destPoint,map,canEatFood,head,tail)
 
     // If there is no path long enough, return all
     // legal directions
@@ -74,35 +66,19 @@ module.exports = {
   },
 
   /**
-   * Check if a path to a given point exists
+   * Get the path to a provided point
    * @param  {object}  destPoint  The point to find a path to
    * @param  {array}  pfGrid      The grid array
    * @param  {bool}  canEatFood   If the snake is allowed to eat food
    * @param  {object}  head       The coords of the start position
    * @param  {object}  tail       The snake's tail
-   * @return {bool}               If a path exists to dest
+   * @return {array}              The A* path to the dest
    */
-  hasPathToPoint(destPoint, pfGrid, canEatFood, head, tail) {
+  getPathToPoint(destPoint, map, canEatFood, head, tail) {
     var finder = new PF.AStarFinder()
 
-    // Build up A* grid for use
-    var grid = new PF.Grid(_.zip.apply(_, _.cloneDeep(pfGrid)))
-    for(var i = 0;i<grid.nodes.length;i++) {
-      for(var j = 0;j<grid.nodes[0].length;j++) {
-        // This is a snek, set unwalkable
-        if(pfGrid[j][i] == 2) {
-          grid.setWalkableAt(j,i,false)
-        }
-        // This is food, maybe walkable
-        else if(pfGrid[j][i] == 1) {
-          if(canEatFood) {
-            grid.setWalkableAt(j,i,true)
-          } else {
-            grid.setWalkableAt(j,i,false)
-          }
-        }
-      }
-    }
+    // Get a new pathfinding grid
+    var grid = map.getPathfinderGrid(canEatFood)
 
     // Set our destination as walkable, as wel as our tail
     grid.setWalkableAt(destPoint['x'],destPoint['y'],true)
@@ -112,6 +88,32 @@ module.exports = {
     var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)
 
     // Does a path exist?
-    return (path.length > 0)
+    return path
+  },
+
+  /**
+   * Check if a path to a given point exists
+   * @param  {object}  destPoint  The point to find a path to
+   * @param  {array}  pfGrid      The grid array
+   * @param  {bool}  canEatFood   If the snake is allowed to eat food
+   * @param  {object}  head       The coords of the start position
+   * @param  {object}  tail       The snake's tail
+   * @return {bool}               If a path exists to dest
+   */
+  hasPathToPoint(destPoint,map,canEatFood,head,tail) {
+    return (this.getPathToPoint(destPoint,map,canEatFood,head,tail).length > 0)
+  },
+
+  /**
+   * Get path length to a point
+   * @param  {object}  destPoint  The point to find a path to
+   * @param  {array}  pfGrid      The grid array
+   * @param  {bool}  canEatFood   If the snake is allowed to eat food
+   * @param  {object}  head       The coords of the start position
+   * @param  {object}  tail       The snake's tail
+   * @return {bool}               If a path exists to dest
+   */
+  getPathLengthToPoint(destPoint,map,canEatFood,head,tail) {
+    return this.getPathToPoint(destPoint,map,canEatFood,head,tail).length
   }
 }

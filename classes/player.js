@@ -1,5 +1,16 @@
+/**
+ * player.js
+ *
+ * This is the main player file our snake will
+ * be using to operate. This may get large, so code
+ * should be fragmented into logical groups as best
+ * possible to maintain a manageable file.
+ *
+ *
+ */
+
 const foodHelper  = require('./player/food')
-const moveHelper  = require('./player/movement')
+const moveHelper  = require('./movement')
 const config      = require('./config')
 
 class Player {
@@ -69,11 +80,15 @@ class Player {
         this.banDirs = []
       }
 
-      // Check if snake is on any walls, ban any wall directions
-      // this.checkWalls(map)
-
       // Check for collision points in all 3 valid directions
       this.checkImmediateCollision(map, allowEarlyFood)
+
+      // Get the opposite of banDirs to find all possible
+      // move directions
+      var legalDirs = this.getLegalDirs()
+
+      var closestFood = false
+      var destPoint
 
       // Find which food on the board is closest.
       // TODO: This algorithm should later find the closest w/
@@ -83,16 +98,16 @@ class Player {
       // has a path to any corner of the board. If it does not,
       // this means the food is trapped, and we should avoid it
       // and/or move on to a different food.
-      var destPoint = foodHelper.findClosestFood(map.food,this.getHead())
+      destPoint = foodHelper.findClosestFood(map.food,this.getHead())
 
-      // Get the opposite of banDirs to find all possible
-      // move directions
-      var legalDirs = this.getLegalDirs()
+      // TODO: This is commented out as it is WIP A* food finding
+      // closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
+      // destPoint = closestFood.coords
 
       var canEatFood = false
 
       // Should our snake eat food by our rule set
-      if(this.shouldEatFood(map)) canEatFood = true
+      if(this.shouldEatFood(map,closestFood)) canEatFood = true
 
       // Was our last pathfind attempt unsuccesful? Try
       // again with less-strict requirements (early food)
@@ -103,7 +118,7 @@ class Player {
       if(!canEatFood && this.getPointDistance(this.getHead(),destPoint) < config.distanceToWaitFromFood) destPoint = this.getAss()
 
       // Use A* to path find to given point
-      var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map.grid,canEatFood,this.getHead(),this.getAss())
+      var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,this.getHead(),this.getAss())
 
       // If no boolean valid directions are available, retry for
       // looser constraints, otherwise break the while loop
@@ -139,10 +154,10 @@ class Player {
         // TODO: This is where we'll check path weights etc.
         // in the future
         if(
-          moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map.grid,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:map.width-1,y:0},map.grid,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:0,y:map.height-1},map.grid,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:0,y:0},map.grid,canEatFood,newHead,this.getAss())
+          moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,newHead,this.getAss())
         ) {
           result = possibleDirs[i]
           break
@@ -206,7 +221,7 @@ class Player {
     //
     // https://play.snakedown.com/app/replay/c1d5785d-7893-4fca-b311-5144a2bf6b2b
     //
-    // I would think A*/checking for snakes ion grid would not allow
+    // I would think A*/checking for snakes on grid would not allow
     // this, but may be missing an edge case.
     //
     // if(this.lastDir == 'up') this.addBanDir('down', 'last move')
@@ -217,16 +232,7 @@ class Player {
     var head = this.getHead()
 
     // Set valid spaces to be those that are 0's
-    var safeSpace = [0]
-
-    // If our health is getting low, or we want to force early eats,
-    // allow the snake to step on 1 spaces.
-    //
-    // TODO:  This currently checks if health is low enough to eat.
-    //        We should switch this in future so that it time its
-    //        A* path to arrive at food as low as possible, not start
-    //        allowing eats at X health. This strategy is less optimal.
-    if(this.shouldEatFood(map) || allowEarlyFood) safeSpace.push(1)
+    var safeSpace = [0,1]
 
     // Calculate all adjacent spaces to the snake, and their coords
     var leftGridCoords = this.getLeftCoords(head,map)
@@ -316,11 +322,25 @@ class Player {
    * @param  {Map} map Current game's map instance
    * @return {boolean}     If the snake should eat food
    */
-  shouldEatFood(map) {
-    return (
-      (this.hp < config.minHealthToFindFood)
-      || (config.matchLongestSnake && (this.getLength() < map.getLongestSnake()))
-    )
+  shouldEatFood(map, closestFood) {
+    var distToClosestFood = closestFood.dist
+
+    var conditional
+    if(closestFood != false) {
+      // Use A* distance to food to check when we need to
+      // go fetch food.
+      conditional = (
+        (this.hp < (distToClosestFood + this.getLength()))
+        || (config.matchLongestSnake && (this.getLength() < map.getLongestSnake()))
+      )
+    } else {
+      // Use naive "find food below health" calculation
+      conditional = (
+        (this.hp < config.minHealthToFindFood)
+        || (config.matchLongestSnake && (this.getLength() < map.getLongestSnake()))
+      )
+    }
+    return conditional
   }
 
   // Get coords of the space left of head
