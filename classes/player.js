@@ -9,9 +9,10 @@
  *
  */
 
-const foodHelper  = require('./player/food')
-const moveHelper  = require('./movement')
-const config      = require('./config')
+const foodHelper   = require('./player/food')
+const moveHelper   = require('./movement')
+const chunkHelper  = require('./player/chunk')
+const config       = require('./config')
 
 class Player {
   constructor(snake) {
@@ -103,6 +104,7 @@ class Player {
       // that doesn't trap us.
       if(destPoint != false) {
         var canEatFood = false
+        var possibleDirs
 
         // Should our snake eat food by our rule set
         if(this.shouldEatFood(map,closestFood)) canEatFood = true
@@ -111,12 +113,38 @@ class Player {
         // again with less-strict requirements (early food)
         if(allowEarlyFood) canEatFood = true
 
-        // If we are idling, and are close enough to food,
-        // just loop on our tail for a bit.
-        if(!canEatFood && closestFood.dist < config.distanceToWaitFromFood) destPoint = this.getAss()
+        // counts all data in each chunk, and returns the data with which chunk is the safest
+        // determins what the safest chunk is on the map at that moment
+        var chunkCountData = chunkHelper.findSafestChunk(map.chunkData)
+        var currChunk = chunkCountData[0]
+        var safeChunkId = chunkCountData[1]
 
-        // Use A* to path find to given point
-        var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,this.getHead(),this.getAss())
+        var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead())
+
+        var logging = ''
+        if(canEatFood) {
+          // Use A* to path find to given point
+          logging = 'Low health, heading for food.'
+        }
+        if(!canEatFood  && isNearCenterOfChunk && closestFood.dist < config.distanceToWaitFromFood) {
+          destPoint = this.getAss()
+          logging = 'Idle in safe chunk, aiming for tail.'
+        }
+        else if (!canEatFood && !isNearCenterOfChunk) {
+          // If this point is a food tile, we'll eat early because 1 is
+          // being set as safe in checkImmediateCollision.
+          //
+          // We should keep it being set in there, and manage food illegality
+          // via the pathfinding grid.
+          destPoint = chunkHelper.findSafestPointInChunk(map.chunkData, safeChunkId, map.numChunksX, map.numChunksY)
+          logging = 'Heading for safe chunk.'
+        }
+
+        if(config.enableLogging) {
+          console.log(logging)
+        }
+
+        possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,this.getHead(),this.getAss())
 
         // If no boolean valid directions are available, retry for
         // looser constraints, otherwise break the while loop

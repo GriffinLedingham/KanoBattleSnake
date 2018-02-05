@@ -19,7 +19,7 @@ module.exports = {
    * @param  {object}  tail       The snake's tail
    * @return {bool}               If a path exists to dest
    */
-  getDirectionToPointAStar: function(destPoint,legalDirs,map,canEatFood,head,tail) {
+  getDirectionToPointAStar: function(destPoint,legalDirs,map,canEatFood, head,tail) {
     // Get the best A* path to our destination point
     var path = this.getPathToPoint(destPoint,map,canEatFood,head,tail)
 
@@ -30,22 +30,24 @@ module.exports = {
     // Set destination point to next step in A* path
     destPoint = {x:path[1][0], y:path[1][1]}
 
-    var foodDirs = []
+    var pathDirs = []
 
     // Check food's position relative to snake head, and add valid directions to
     // array of possible outcomes
 
     // If the snake is in the same row or column as a food, calculate what direction
     // will move us towards it.
-    if(destPoint['x'] == head['x'] && destPoint['y'] < head['y']) foodDirs.push('up')
-    else if(destPoint['x'] == head['x'] && destPoint['y'] > head['y']) foodDirs.push('down')
-    else if(destPoint['x'] > head['x'] && destPoint['y'] == head['y']) foodDirs.push('right')
-    else if(destPoint['x'] < head['x'] && destPoint['y'] == head['y']) foodDirs.push('left')
+    // if (canEatFood)
+    // {
+    if(destPoint['x'] == head['x'] && destPoint['y'] < head['y']) pathDirs.push('up')
+    else if(destPoint['x'] == head['x'] && destPoint['y'] > head['y']) pathDirs.push('down')
+    else if(destPoint['x'] > head['x'] && destPoint['y'] == head['y']) pathDirs.push('right')
+    else if(destPoint['x'] < head['x'] && destPoint['y'] == head['y']) pathDirs.push('left')
     else {
-      if(destPoint['x'] < head['x'] && legalDirs.indexOf('left') != -1) foodDirs.push('left')
-      if(destPoint['x'] > head['x'] && legalDirs.indexOf('right') != -1) foodDirs.push('right')
-      if(destPoint['y'] > head['y'] && legalDirs.indexOf('down') != -1) foodDirs.push('down')
-      if(destPoint['y'] < head['y'] && legalDirs.indexOf('up') != -1) foodDirs.push('up')
+      if(destPoint['x'] < head['x'] && legalDirs.indexOf('left') != -1) pathDirs.push('left')
+      if(destPoint['x'] > head['x'] && legalDirs.indexOf('right') != -1) pathDirs.push('right')
+      if(destPoint['y'] > head['y'] && legalDirs.indexOf('down') != -1) pathDirs.push('down')
+      if(destPoint['y'] < head['y'] && legalDirs.indexOf('up') != -1) pathDirs.push('up')
     }
 
     // Array of all possible directions we are allowed to go
@@ -53,8 +55,8 @@ module.exports = {
 
     // Only pick food directions that overlap with directions that are not yet
     // banned in our flow
-    for(var i in foodDirs) {
-      if(legalDirs.indexOf(foodDirs[i]) != -1) resultDirs.push(foodDirs[i])
+    for(var i in pathDirs) {
+      if(legalDirs.indexOf(pathDirs[i]) != -1) resultDirs.push(pathDirs[i])
     }
 
     // If no directions will point us to our nearest food, just return array
@@ -62,6 +64,9 @@ module.exports = {
     if(resultDirs.length == 0) resultDirs = legalDirs
 
     // Return all positions we have decided we can go
+    // console.log("result Dirs")
+    // console.log(resultDirs)
+    // console.log("_____________")
     return resultDirs
   },
 
@@ -81,8 +86,14 @@ module.exports = {
     var grid = map.getPathfinderGrid(canEatFood)
 
     // Set our destination as walkable, as wel as our tail
+    // console.log("destX: " + destPoint['x'] + " destY: " + destPoint['y'])
+    //
+    // This is why we're eating food early. Fix this?
     grid.setWalkableAt(destPoint['x'],destPoint['y'],true)
-    grid.setWalkableAt(tail['x'],tail['y'],true)
+    if (tail != undefined)
+    {
+      grid.setWalkableAt(tail['x'],tail['y'],true)
+    }
 
     // Find path to destPoint using A*
     var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)

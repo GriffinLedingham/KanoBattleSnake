@@ -20,5 +20,24 @@ module.exports = {
 
   // This enables banDir logging, and any other desired
   // logs that may come up
-  enableLogging: false
+  enableLogging: false,
+
+  // Grid index config
+  walkable     : 0,
+  food         : 1,
+  ownSnakeBody : 2,
+  ownHead      : 3,
+  ownTail      : 4,
+  oppSnakeBody : 5,
+  oppHead      : 6,
+  oppTail      : 7,
+
+  // Chunking
+  regGameDiameter      : 15,
+  numRegChunksPerAxis  : 3,
+  numMinChunksPerAxis  : 2,
+
+  // Distance snake should stay from safe point in
+  // chunk
+  distanceFromSafePoint: 1
 }
