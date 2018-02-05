@@ -9,9 +9,10 @@
  *
  */
 
-const foodHelper  = require('./player/food')
-const moveHelper  = require('./movement')
-const config      = require('./config')
+const foodHelper   = require('./player/food')
+const moveHelper   = require('./movement')
+const chunkHelper  = require('./player/chunk')
+const config       = require('./config')
 
 class Player {
   constructor(snake) {
@@ -94,6 +95,55 @@ class Player {
       closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
 
       destPoint = closestFood.coords
+      // Find which food on the board is closest.
+      // TODO: This algorithm should later find the closest w/
+      // a valid path to it, using A*.
+      //
+      // TODO: Should use new hasPathToPoint to check if food
+      // has a path to any corner of the board. If it does not,
+      // this means the food is trapped, and we should avoid it
+      // and/or move on to a different food.
+      destPoint = foodHelper.findClosestFood(map.food,this.getHead())
+
+      // counts all data in each chunk, and returns the data with which chunk is the safest
+      // determins what the safest chunk is on the map at that moment
+      var chunkCountData = chunkHelper.findSafestChunk(map.chunkData);
+      var currChunk = chunkCountData[0];
+      var safeChunkId = chunkCountData[1]
+
+      //console.log(" curr chunk: " + chunkCountData[0] +" safeChunkId : " +  safeChunkId);
+      // TODO: This is commented out as it is WIP A* food finding
+      // closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
+      // destPoint = closestFood.coords
+      var canEatFood = false
+
+      // Should our snake eat food by our rule set
+      if(this.shouldEatFood(map,closestFood)) canEatFood = true
+
+      // Was our last pathfind attempt unsuccesful? Try
+      // again with less-strict requirements (early food)
+      if(allowEarlyFood) canEatFood = true
+
+      // If we are idling, and we are in the safest chunk, and we do not need food
+      // just loop on our tail for a bit.
+      // console.log("food = " + canEatFood + " chunk = " + (currChunk != safeChunkId))
+      var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead())
+      if(!canEatFood  && isNearCenterOfChunk) 
+      {
+        destPoint = this.getAss()
+        console.log("aiming for tail")
+      }
+      else if (!canEatFood && !isNearCenterOfChunk) {
+        destPoint = chunkHelper.findSafestPointInChunk(map.chunkData, safeChunkId, map.numChunksX, map.numChunksY)
+        console.log("aiming for chunk")
+      }
+      else
+      {
+        console.log('eating food')
+      }
+
+      // Use A* to path find to given 
+      var possibleDirs = moveHelper.getDirectionToPointAStar(destPoint,legalDirs,map,canEatFood,safeChunkId,this.getHead(),this.getAss())
 
       // If a path to a nearest food exists, let's try and
       // make our way over to it.
@@ -154,10 +204,10 @@ class Player {
         // TODO: This is where we'll check path weights etc.
         // in the future
         if(
-          moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,newHead,this.getAss())
-          || moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,newHead,this.getAss())
+          moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,safeChunkId,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,safeChunkId,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,safeChunkId,newHead,this.getAss())
+          || moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,safeChunkId,newHead,this.getAss())
         ) {
           result = possibleDirs[i]
           break

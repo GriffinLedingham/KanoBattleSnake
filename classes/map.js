@@ -15,6 +15,12 @@
 const _ = require('lodash')
 const PF = require('pathfinding')
 const config = require('./config')
+<<<<<<< HEAD
+=======
+const chunkHelper = require('./player/chunk')
+const mathCeil   = Math.ceil;
+
+>>>>>>> preliminary grid chunking, and path finding to the least occupied chunk
 
 class Map {
   constructor(game) {
@@ -27,7 +33,28 @@ class Map {
     this.width  = game.width
     this.grid   = []
     this.resetGrid = []
+    this.chunkCenters = []
 
+    // determine size of chunking based on size of map
+    if (game.width < config.regGameDiameter) {
+      this.numTilesPerChunksX = mathCeil(game.width / config.numMinChunksPerAxis)
+      this.numChunksX = config.numMinChunksPerAxis
+    }
+    else {
+      this.numTilesPerChunksX = mathCeil(game.width / config.numRegChunksPerAxis)
+      this.numChunksX = config.numRegChunksPerAxis
+    }
+    
+    if (game.height < config.regGameDiameter) {
+      this.numTilesPerChunksY = mathCeil(game.height / config.numMinChunksPerAxis)
+      this.numChunksY = config.numMinChunksPerAxis
+    }
+    else {
+      this.numTilesPerChunksY = mathCeil(game.height / config.numRegChunksPerAxis)
+      this.numChunksY = config.numRegChunksPerAxis
+    }
+
+    //build the grid
     this.buildGrid()
   }
 
@@ -62,29 +89,43 @@ class Map {
    */
   updateData(data) {
     this.grid = _.cloneDeep(this.resetGrid)
+    var ourSnakeId = data.you.id;
 
-    // Add all snakes to our map's grid
+    // // Add all snakes to our map's grid
     for(var i = 0;i<data.snakes.data.length;i++) {
       var snake = data.snakes.data[i]
-      for(var j = 0;j<snake.body.data.length;j++) {
+      var length = snake.body.data.length
+      for(var j = 0;j<length;j++) {
         var coord = snake.body.data[j]
+        var id = snake.id;
 
         // This is a snake.
-        //
-        // TODO: put this value into the grid one of following:
-        //          0 - Walkable
-        //          1 - Food
-        //          2 - Snake
-        //          3 - Own Head
-        //          4 - Own Tail
-        //          5 - Opp. Head
-        //          6 - Opp. Tail
-        //
-        //          Body data is what's being iterated on
-        //          First index of each body is a head
-        //          Last index of each body is a tail
-
-        this.grid[coord['x']][coord['y']] = 2
+        if (j == 0) {
+          if (id == ourSnakeId) {
+            this.grid[coord['x']][coord['y']] = config.ownHead
+          }
+          else {
+            this.grid[coord['x']][coord['y']] = config.oppHead
+          }
+        }
+        else if (j == length - 1) {
+          if (id == ourSnakeId) {
+            this.grid[coord['x']][coord['y']] = config.ownTail
+          }        
+          else {
+            this.grid[coord['x']][coord['y']] = config.oppTail
+          }
+        }
+        else
+        {
+          if (id == ourSnakeId) {
+            this.grid[coord['x']][coord['y']] = config.ownSnakeBody
+          }
+          else {
+            this.grid[coord['x']][coord['y']] = config.oppSnakeBody
+          }
+          
+        }
       }
     }
 
@@ -102,6 +143,11 @@ class Map {
 
     // Save a transposed copy of the grid
     this.transposedGrid = _.zip.apply(_, _.cloneDeep(this.grid))
+
+    this.chunkData = chunkHelper.generateChunkData(this.transposedGrid, this.width, this.height, this.numTilesPerChunksX, this.numTilesPerChunksY)
+    // console.log(this.chunkData)
+    // console.log('********************************')
+    // console.log('********************************')
 
     //Clear the display
     if(config.enableLogging) {
@@ -138,8 +184,7 @@ class Map {
    * @param  {bool} canEatFood Is snake allowed to pass through food pieces
    * @return {PF.Grid}         The PF.Grid instance to be use in path finder
    */
-  getPathfinderGrid(canEatFood) {
-
+  getPathfinderGrid(canEatFood, safestChunk) {
     // Init new PF grid from transposed matrix
     var grid = new PF.Grid(this.transposedGrid)
     // i is the grid's horizontal x-plane
@@ -157,15 +202,22 @@ class Map {
         }
 
         // This is a snek, set unwalkable
-        if(gridTile == 2) {
-          grid.setWalkableAt(i,j,false)
+        if(gridTile >= config.ownSnakeBody) {
+          grid.setWalkableAt(j,i,false)
         }
         // This is food, maybe walkable
-        else if(gridTile == 1) {
+        else if(gridTile == config.food) {
           if(canEatFood) {
             grid.setWalkableAt(i,j,true)
           } else {
             grid.setWalkableAt(i,j,false)
+          }
+        }
+        else if (gridTile < config.ownSnakeBody) {
+          if (safestChunk != -1) {
+            grid.setWalkableAt(j,i,true)
+          } else {
+            grid.setWalkableAt(j,i,false)
           }
         }
       }
