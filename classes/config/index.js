@@ -20,7 +20,7 @@ module.exports = {
 
   // This enables banDir logging, and any other desired
   // logs that may come up
-  enableLogging: false
+  enableLogging: false,
 
   // Grid index config
   walkable     : 0,

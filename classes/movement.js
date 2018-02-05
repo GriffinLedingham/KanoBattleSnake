@@ -88,7 +88,10 @@ module.exports = {
     // Set our destination as walkable, as wel as our tail
     // console.log("destX: " + destPoint['x'] + " destY: " + destPoint['y'])
     grid.setWalkableAt(destPoint['x'],destPoint['y'],true)
-    grid.setWalkableAt(tail['x'],tail['y'],true)
+    if (tail != undefined)
+    {
+      grid.setWalkableAt(tail['x'],tail['y'],true)
+    }
 
     // Find path to destPoint using A*
     var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)

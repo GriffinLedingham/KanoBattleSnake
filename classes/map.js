@@ -15,12 +15,9 @@
 const _ = require('lodash')
 const PF = require('pathfinding')
 const config = require('./config')
-<<<<<<< HEAD
-=======
 const chunkHelper = require('./player/chunk')
 const mathCeil   = Math.ceil;
 
->>>>>>> preliminary grid chunking, and path finding to the least occupied chunk
 
 class Map {
   constructor(game) {
