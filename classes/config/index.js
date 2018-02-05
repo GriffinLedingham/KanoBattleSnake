@@ -33,7 +33,11 @@ module.exports = {
   oppTail      : 7,
 
   // Chunking
-  regGameDiameter      : 15, 
+  regGameDiameter      : 15,
   numRegChunksPerAxis  : 3,
   numMinChunksPerAxis  : 2,
+
+  // Distance snake should stay from safe point in
+  // chunk
+  distanceFromSafePoint: 1
 }

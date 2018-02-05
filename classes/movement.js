@@ -19,9 +19,9 @@ module.exports = {
    * @param  {object}  tail       The snake's tail
    * @return {bool}               If a path exists to dest
    */
-  getDirectionToPointAStar: function(destPoint,legalDirs,map,canEatFood, moveToSafeChunk, head,tail) {
+  getDirectionToPointAStar: function(destPoint,legalDirs,map,canEatFood, head,tail) {
     // Get the best A* path to our destination point
-    var path = this.getPathToPoint(destPoint,map,canEatFood,moveToSafeChunk,head,tail)
+    var path = this.getPathToPoint(destPoint,map,canEatFood,head,tail)
 
     // If there is no path long enough, return all
     // legal directions
@@ -79,14 +79,16 @@ module.exports = {
    * @param  {object}  tail       The snake's tail
    * @return {array}              The A* path to the dest
    */
-  getPathToPoint(destPoint, map, canEatFood, moveToSafeChunk, head, tail) {
+  getPathToPoint(destPoint, map, canEatFood, head, tail) {
     var finder = new PF.AStarFinder()
 
     // Get a new pathfinding grid
-    var grid = map.getPathfinderGrid(canEatFood, moveToSafeChunk)
+    var grid = map.getPathfinderGrid(canEatFood)
 
     // Set our destination as walkable, as wel as our tail
     // console.log("destX: " + destPoint['x'] + " destY: " + destPoint['y'])
+    //
+    // This is why we're eating food early. Fix this?
     grid.setWalkableAt(destPoint['x'],destPoint['y'],true)
     if (tail != undefined)
     {
@@ -109,8 +111,8 @@ module.exports = {
    * @param  {object}  tail       The snake's tail
    * @return {bool}               If a path exists to dest
    */
-  hasPathToPoint(destPoint,map,canEatFood,moveToSafeChunk,head,tail) {
-    return (this.getPathToPoint(destPoint,map,canEatFood,moveToSafeChunk,head,tail).length > 0)
+  hasPathToPoint(destPoint,map,canEatFood,head,tail) {
+    return (this.getPathToPoint(destPoint,map,canEatFood,head,tail).length > 0)
   },
 
   /**
@@ -122,7 +124,7 @@ module.exports = {
    * @param  {object}  tail       The snake's tail
    * @return {bool}               If a path exists to dest
    */
-  getPathLengthToPoint(destPoint,map,canEatFood,moveToSafeChunk,head,tail) {
-    return this.getPathToPoint(destPoint,map,canEatFood,moveToSafeChunk,head,tail).length
+  getPathLengthToPoint(destPoint,map,canEatFood,head,tail) {
+    return this.getPathToPoint(destPoint,map,canEatFood,head,tail).length
   }
 }

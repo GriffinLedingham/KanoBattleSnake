@@ -30,7 +30,7 @@ module.exports = {
       {
         rowChunks[i] = [rowChunks[i]];
       }
-      
+
       var currY = 1;
       while (currY < height) {
         var currRowChunked = _.chunk(transposedGrid[currY++], tilesX)
@@ -38,7 +38,7 @@ module.exports = {
         for (var i = 0; i < length; i++) {
           rowChunks[i].push(currRowChunked[i])
         }
-        
+
         if ((currY % tilesY) == 0 || currY == height) {
           for (var i = 0; i < length; i++)
           {
@@ -47,7 +47,6 @@ module.exports = {
           }
         }
       }
-      //console.log(chunks);
 
       return chunks
     },
@@ -59,14 +58,13 @@ module.exports = {
      * @return {object}     chunk data counts, and suggest safest tile on the map
      */
     findSafestChunk: function(chunkData) {
-        
+
         var length = chunkData.length
         var chunkCounts = [0,0]
         var currChunk;
         for (var i = 0; i < length; i++)
         {
           var currChunkData = _.flatten(chunkData[i])
-          // console.log(currChunkData)
           var chunkLength = currChunkData.length
 
           var count = [0,0,0,0,0,0,0]
@@ -100,7 +98,7 @@ module.exports = {
                 break;
             }
           }
-          chunkCounts.push(_.cloneDeep(count))          
+          chunkCounts.push(_.cloneDeep(count))
         }
 
         var currFoodCount = 0;
@@ -111,17 +109,17 @@ module.exports = {
         {
           var index = i+2;
           currFoodCount = chunkCounts[index][config.food]
-          currSafeCount = chunkCounts[index][config.walkable] + 
+          currSafeCount = chunkCounts[index][config.walkable] +
                           chunkCounts[index][config.food] +
-                          chunkCounts[index][config.ownHead] + 
-                          chunkCounts[index][config.ownTail] + 
+                          chunkCounts[index][config.ownHead] +
+                          chunkCounts[index][config.ownTail] +
                           chunkCounts[index][config.ownSnakeBody];
 
           if (i > 0 && (currSafeCount > prevSafeCount || (currSafeCount == prevSafeCount && currFoodCount > prevFoodCount))) {
 
                chunkCounts[1] = i
           }
-          
+
           prevSafeCount = currSafeCount
           prevFoodCount = currFoodCount
         }
@@ -147,7 +145,7 @@ module.exports = {
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
     findSafestPointInChunk: function(chunkData, index, chunksX, chunksY) {
-      
+
 
       var safeChunk = chunkData[index]
 
@@ -159,24 +157,19 @@ module.exports = {
       var point = [-1, -1]
       var currPointData
       while (true) {
-        // console.log('x ' + x + ' y ' + y)
-        // console.log("safeChunk=====================");      
-        // console.log(safeChunk);
-        // console.log("safeChunk=====================");      
-        
         currPointData = safeChunk[x][y]
         if (currPointData < config.oppSnakeBody)
         {
           var safeSidePoints = 0
-          if (safeChunk[x-1][y] < config.oppSnakeBody && 
-              safeChunk[x][y-1] < config.oppSnakeBody && 
-              safeChunk[x+1][y] < config.oppSnakeBody && 
+          if (safeChunk[x-1][y] < config.oppSnakeBody &&
+              safeChunk[x][y-1] < config.oppSnakeBody &&
+              safeChunk[x+1][y] < config.oppSnakeBody &&
               safeChunk[x][y+1] < config.oppSnakeBody) {
               point = [x, y]
           }
           break;
         }
-        Math.floor(Math.random() * 6) + 1  
+        Math.floor(Math.random() * 6) + 1
         x = floor(rand() * xLength) + 1
         y = floor(rand() * yLength) + 1
       }
@@ -223,7 +216,7 @@ module.exports = {
           x += currChunk[0].length
         }
       }
-      
+
       return {x:point[0] + x, y: point[1] + y};
     },
 
@@ -242,28 +235,11 @@ module.exports = {
       centerX = centerChunkGridPosition['x']
       centerY = centerChunkGridPosition['y']
 
-      var isNearCenter = false;
-      if (centerX == headX && centerY == headY) {
-        isNearCenter = true;
-      } else if (centerX == headX-1 && centerY == headY) {
-        isNearCenter = true;
-      } else if (centerX == headX && centerY == headY-1) {
-        isNearCenter = true;
-      } else if (centerX == headX+1 && centerY == headY) {
-        isNearCenter = true;
-      } else if (centerX == headX && centerY == headY+1) {
-        isNearCenter = true;
-      } else if (centerX == headX+1 && centerY == headY+1) {
-        isNearCenter = true;
-      } else if (centerX == headX-1 && centerY == headY-1) {
-        isNearCenter = true;
-      } else if (centerX == headX-1 && centerY == headY+1) {
-        isNearCenter = true;
-      } else if (centerX == head+1 && centerY == headY-1) {
-        isNearCenter = true;
-      } 
-
-      return isNearCenter;
+      return (this.getPointDistance({x:centerX,y:centerY}, head) < config.distanceFromSafePoint)
     },
-    
+
+    getPointDistance(pA,pB) {
+      return (Math.abs(pA.x-pB.x) + Math.abs(pA.y - pB.y))
+    }
+
 }

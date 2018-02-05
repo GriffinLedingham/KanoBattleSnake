@@ -41,7 +41,7 @@ class Map {
       this.numTilesPerChunksX = mathCeil(game.width / config.numRegChunksPerAxis)
       this.numChunksX = config.numRegChunksPerAxis
     }
-    
+
     if (game.height < config.regGameDiameter) {
       this.numTilesPerChunksY = mathCeil(game.height / config.numMinChunksPerAxis)
       this.numChunksY = config.numMinChunksPerAxis
@@ -108,7 +108,7 @@ class Map {
         else if (j == length - 1) {
           if (id == ourSnakeId) {
             this.grid[coord['x']][coord['y']] = config.ownTail
-          }        
+          }
           else {
             this.grid[coord['x']][coord['y']] = config.oppTail
           }
@@ -121,7 +121,7 @@ class Map {
           else {
             this.grid[coord['x']][coord['y']] = config.oppSnakeBody
           }
-          
+
         }
       }
     }
@@ -181,7 +181,7 @@ class Map {
    * @param  {bool} canEatFood Is snake allowed to pass through food pieces
    * @return {PF.Grid}         The PF.Grid instance to be use in path finder
    */
-  getPathfinderGrid(canEatFood, safestChunk) {
+  getPathfinderGrid(canEatFood) {
     // Init new PF grid from transposed matrix
     var grid = new PF.Grid(this.transposedGrid)
     // i is the grid's horizontal x-plane
@@ -208,13 +208,6 @@ class Map {
             grid.setWalkableAt(i,j,true)
           } else {
             grid.setWalkableAt(i,j,false)
-          }
-        }
-        else if (gridTile < config.ownSnakeBody) {
-          if (safestChunk != -1) {
-            grid.setWalkableAt(j,i,true)
-          } else {
-            grid.setWalkableAt(j,i,false)
           }
         }
       }
