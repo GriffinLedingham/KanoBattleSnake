@@ -2,7 +2,7 @@ const PF      = require('pathfinding')
 const config  = require('../config')
 const _       = require('lodash')
 const ceil   = Math.ceil
-const floor   = Math.ceil
+const floor   = Math.floor
 const rand   = Math.random
 
 
@@ -144,12 +144,12 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    findSafestPointInChunk: function(chunkData, index, chunksX, chunksY) {
-
+    findSafestPointInChunk: function(chunkData, index, chunksX, chunksY, mapWidth) {
 
       var safeChunk = chunkData[index]
 
       var xLength = chunkData[0].length
+
       var yLength = safeChunk.length
       var x = floor(xLength / 2);
       var y = floor(yLength / 2);
@@ -169,12 +169,10 @@ module.exports = {
           }
           break;
         }
-        Math.floor(Math.random() * 6) + 1
         x = floor(rand() * xLength) + 1
         y = floor(rand() * yLength) + 1
       }
-
-      return this.convertChunkPointToGridPoint(chunkData, index, point);
+      return this.convertChunkPointToGridPoint(chunkData, index, point, mapWidth);
     },
 
      /**
@@ -194,18 +192,23 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    convertChunkPointToGridPoint: function(chunkData, index, point) {
+    convertChunkPointToGridPoint: function(chunkData, index, point, mapWidth) {
       var x = 0;
       var y = 0;
 
-      var currIndex = 1;
+      var currIndex = 0;
       var newRow = true;
-      //convert to grid position
-      while (currIndex <= index) {
-        var currChunk = chunkData[currIndex++]
 
+      let xLength = 0
+
+      //convert to grid position
+      while (currIndex <= index+1) {
+        var currChunk = chunkData[currIndex++]
         //calculate x
-        if (currChunk[0].length % x == 0)
+        //
+        // RIGHT HERE OUR INDEX IS WHAT WE WANT
+        //
+        if (x == mapWidth)
         {
           x = 0;
           y += currChunk.length
@@ -216,7 +219,6 @@ module.exports = {
           x += currChunk[0].length
         }
       }
-
       return {x:point[0] + x, y: point[1] + y};
     },
 
@@ -224,14 +226,14 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    isHeadNearCenterOfChunk: function(chunkData, index, head) {
+    isHeadNearCenterOfChunk: function(chunkData, index, head, mapWidth) {
       var safeChunk = chunkData[index]
       var headX = head['x'];
       var headY = head['y'];
 
       var centerX = floor(chunkData[0].length / 2);
       var centerY = floor(safeChunk.length / 2);
-      var centerChunkGridPosition = this.convertChunkPointToGridPoint(chunkData, index, [centerX, centerY])
+      var centerChunkGridPosition = this.convertChunkPointToGridPoint(chunkData, index, [centerX, centerY], mapWidth)
       centerX = centerChunkGridPosition['x']
       centerY = centerChunkGridPosition['y']
 
