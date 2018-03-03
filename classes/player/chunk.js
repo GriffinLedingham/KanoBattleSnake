@@ -67,7 +67,7 @@ module.exports = {
           var currChunkData = _.flatten(chunkData[i])
           var chunkLength = currChunkData.length
 
-          var count = [0,0,0,0,0,0,0]
+          var count = [0,0,0,0,0,0,0,0]
           for (var j = 0; j < chunkLength; j++)
           {
             switch(currChunkData[j]) {
@@ -144,7 +144,7 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    findSafestPointInChunk: function(chunkData, index, chunksX, chunksY, mapWidth) {
+    findSafestPointInChunk: function(chunkData, index, chunksX, chunksY, mapWidth, mapHeight) {
 
       var safeChunk = chunkData[index]
 
@@ -172,7 +172,7 @@ module.exports = {
         x = floor(rand() * xLength) + 1
         y = floor(rand() * yLength) + 1
       }
-      return this.convertChunkPointToGridPoint(chunkData, index, point, mapWidth);
+      return this.convertChunkPointToGridPoint(chunkData, index, point, mapWidth, mapHeight);
     },
 
      /**
@@ -192,34 +192,49 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    convertChunkPointToGridPoint: function(chunkData, index, point, mapWidth) {
+    convertChunkPointToGridPoint: function(chunkData, index, point, mapWidth, mapHeight) {
       var x = 0;
       var y = 0;
 
       var currIndex = 0;
-      var newRow = true;
 
       let xLength = 0
 
       //convert to grid position
-      while (currIndex <= index+1) {
+      while (currIndex <= index) {
         var currChunk = chunkData[currIndex++]
         //calculate x
         //
         // RIGHT HERE OUR INDEX IS WHAT WE WANT
         //
+
+        if (currChunk == undefined)
+        {
+            continue;
+        }
+
+        if (y == mapHeight)
+        {
+            continue;
+        }
+
         if (x == mapWidth)
         {
           x = 0;
           y += currChunk.length
-          newRow = true
+          console.log('new row ' + x + ' ' + y)
         }
-        else
+        else if (x < mapWidth)
         {
           x += currChunk[0].length
+          console.log('currChunk length')
+          console.log(currChunk.length);
         }
       }
-      return {x:point[0] + x, y: point[1] + y};
+
+      console.log('final point ')
+      console.log({x:point[0] + x, y: point[1]})
+      return {x:point[0] + x, y: point[1] + y}
     },
 
     /** Determine which chunk of the map contains the safest location

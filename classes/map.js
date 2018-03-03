@@ -51,6 +51,13 @@ class Map {
       this.numChunksY = config.numRegChunksPerAxis
     }
 
+    console.log('---------')
+    console.log(this.numTilesPerChunksX)
+    console.log(this.numTilesPerChunksY)
+    console.log(this.numChunksX)
+    console.log(this.numChunksY)
+    console.log('~~~~~~~~~')
+
     //build the grid
     this.buildGrid()
   }

@@ -119,6 +119,10 @@ class Player {
         var currChunk = chunkCountData[0]
         var safeChunkId = chunkCountData[1]
 
+        console.log('chunkCountData = ' + chunkCountData);
+        console.log('currChunk = ' + currChunk);
+        console.log('safeChunk = ' + safeChunkId);
+
         var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead(), map.width)
 
         var logging = ''
@@ -136,8 +140,8 @@ class Player {
           //
           // We should keep it being set in there, and manage food illegality
           // via the pathfinding grid.
-          destPoint = chunkHelper.findSafestPointInChunk(map.chunkData, safeChunkId, map.numChunksX, map.numChunksY, map.width)
-          logging = 'Heading for safe chunk.'
+          destPoint = chunkHelper.findSafestPointInChunk(map.chunkData, safeChunkId, map.numChunksX, map.numChunksY, map.width, map.height)
+          logging = 'Heading for safe chunk : ' + safeChunkId;
         }
 
         if(config.enableLogging) {
