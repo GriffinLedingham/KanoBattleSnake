@@ -263,6 +263,9 @@ class Player {
     // if(this.lastDir == 'left') this.addBanDir('right','last move')
     // if(this.lastDir == 'right') this.addBanDir('left','last move')
 
+
+
+
     var head = this.getHead()
 
     // Set valid spaces to be those that are 0's
@@ -280,6 +283,42 @@ class Player {
 
     var downGridCoords = this.getDownCoords(head,map)
     var downGrid = map.grid[downGridCoords['x']][downGridCoords['y']]
+
+    if(this.getLength() < map.getLongestSnake())
+    {
+        // Get all directions next to head, and see if they have a snake head in
+        // their radius
+        var headsArr = []
+        console.log(map.transposedGrid)
+        var workingGrid = map.transposedGrid
+        for(var i = 0;i<workingGrid[0].length;i++) {
+          for(var j = 0;j<workingGrid.length;j++) {
+            if(workingGrid[j][i] == config.oppHead) {
+                console.log('found head at' + i + ',' + j)
+                headsArr.push({x:i,y:j})
+            }
+          }
+        }
+
+        for(var headIndex in headsArr) {
+            if(this.getPointDistance(leftGridCoords,headsArr[headIndex]) < config.snakeHeadRadius)
+            {
+                this.addBanDir('left','snake radius')
+            }
+            if(this.getPointDistance(rightGridCoords,headsArr[headIndex]) < config.snakeHeadRadius)
+            {
+                this.addBanDir('right','snake radius')
+            }
+            if(this.getPointDistance(upGridCoords,headsArr[headIndex]) < config.snakeHeadRadius)
+            {
+                this.addBanDir('up','snake radius')
+            }
+            if(this.getPointDistance(downGridCoords,headsArr[headIndex]) < config.snakeHeadRadius)
+            {
+                this.addBanDir('down','snake radius')
+            }
+        }
+    }
 
     // If any of the adjacent spaces aren't in the array of safe tiles,
     // ban them.

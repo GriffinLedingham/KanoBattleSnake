@@ -39,5 +39,7 @@ module.exports = {
 
   // Distance snake should stay from safe point in
   // chunk
-  distanceFromSafePoint: 2
+  distanceFromSafePoint: 2,
+
+  snakeHeadRadius: 2
 }
