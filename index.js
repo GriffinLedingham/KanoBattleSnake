@@ -7,7 +7,7 @@ function start(game) {
   var map = new Map(game)
   return {
     name: 'cLUL',
-    color: '#5734a7',
+    color: '#FF0000',
   }
 }
 

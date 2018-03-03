@@ -81,6 +81,11 @@ class Player {
         this.banDirs = []
       }
 
+      var chunkCountData = chunkHelper.findSafestChunk(map.chunkData)
+      var currChunk = chunkCountData[0]
+      var safeChunkId = chunkCountData[1]
+      var chunkScores = chunkCountData[2]
+
       // Check for collision points in all 3 valid directions
       this.checkImmediateCollision(map, allowEarlyFood)
 
@@ -94,7 +99,7 @@ class Player {
       var canEatFood = false
 
       // Use A* to find closest food, by path distance
-      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,true)
+      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,true, chunkScores)
 
       destPoint = closestFood.coords
       // If a path to a nearest food exists, let's try and
@@ -116,9 +121,6 @@ class Player {
 
         // counts all data in each chunk, and returns the data with which chunk is the safest
         // determins what the safest chunk is on the map at that moment
-        var chunkCountData = chunkHelper.findSafestChunk(map.chunkData)
-        var currChunk = chunkCountData[0]
-        var safeChunkId = chunkCountData[1]
 
         var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead(), map.width, map.height)
 
@@ -288,6 +290,10 @@ class Player {
     //        it's the snake's end piece. If so, we know that it won't
     //        be here next tick, so the space is actually safe (as along
     //        as they don't have a food within 1-tile's reach of their head)
+
+    
+
+
     if(safeSpace.indexOf(leftGrid) == -1 && (!this.spaceIsAss(leftGridCoords) || !this.canTouchTail())) this.addBanDir('left','space is filled')
     if(safeSpace.indexOf(rightGrid) == -1 && (!this.spaceIsAss(rightGridCoords) || !this.canTouchTail())) this.addBanDir('right','space is filled')
     if(safeSpace.indexOf(upGrid) == -1 && (!this.spaceIsAss(upGridCoords) || !this.canTouchTail())) this.addBanDir('up','space is filled')
