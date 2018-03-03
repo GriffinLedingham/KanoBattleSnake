@@ -116,7 +116,7 @@ class Player {
 
         // counts all data in each chunk, and returns the data with which chunk is the safest
         // determins what the safest chunk is on the map at that moment
-        var chunkCountData = chunkHelper.findSafestChunk(map.chunkData)
+        var chunkCountData = chunkHelper.findSafestChunk(map.chunkData, map)
         var currChunk = chunkCountData[0]
         var safeChunkId = chunkCountData[1]
 

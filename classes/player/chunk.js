@@ -4,6 +4,7 @@ const _       = require('lodash')
 const ceil   = Math.ceil
 const floor   = Math.floor
 const rand   = Math.random
+const moveHelper   = require('../movement')
 
 
 
@@ -57,7 +58,7 @@ module.exports = {
      * @param  {object} chunkData contains each chunks data of each snake, and food
      * @return {object}     chunk data counts, and suggest safest tile on the map
      */
-    findSafestChunk: function(chunkData) {
+    findSafestChunk: function(chunkData, map) {
         var numChunks = chunkData.length
         var chunkInfo = {
             currentChunkIndex: 0,
@@ -66,7 +67,6 @@ module.exports = {
 
         var chunkCounts = []
         var chunkScores = []
-
         for(var i = 0; i < numChunks; i++) {
             var itChunkData = _.flatten(chunkData[i])
             var itChunkLength = itChunkData.length
@@ -75,6 +75,18 @@ module.exports = {
             var itCounts = {
 
             }
+
+            var itSafestpoint = this.findSafestPointInChunk(chunkData,i,map.numChunksX,map.numChunksY,map.width,map.height)
+
+            var bottomRightCorner = moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,true,itSafestpoint)
+            var topRightCorner = moveHelper.hasPathToPoint({x:map.width-1,y:0},map,true,itSafestpoint)
+            var bottomLeftCorner = moveHelper.hasPathToPoint({x:0,y:map.height-1},map,true,itSafestpoint)
+            var topLeftCorner = moveHelper.hasPathToPoint({x:0,y:0},map,true,itSafestpoint)
+
+            if(bottomRightCorner) itChunkScore += 50
+            if(topRightCorner) itChunkScore += 50
+            if(bottomLeftCorner) itChunkScore += 50
+            if(topLeftCorner) itChunkScore += 50
 
             itCounts[config.walkable] = 0
             itCounts[config.food] = 0

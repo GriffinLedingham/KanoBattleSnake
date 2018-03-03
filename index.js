@@ -6,8 +6,8 @@ const Map     = require('./classes/map')
 function start(game) {
   var map = new Map(game)
   return {
-    name: 'cLUL',
-    color: '#5734a7',
+    name: 'Opie',
+    color: '#000000',
   }
 }
 
@@ -31,7 +31,7 @@ function move(data) {
   // Calculate the snake's next move. Hopefully this works.
   return {
     move: self.calcMove(map),
-    taunt: "Boop the snoot!",
+    taunt: 'Bark bark',
   }
 }
 
