@@ -200,35 +200,15 @@ module.exports = {
 
       let xLength = 0
 
-      //convert to grid position
-      while (currIndex <= index) {
+      while ( currIndex < index) 
+      {
         var currChunk = chunkData[currIndex++]
-        //calculate x
-        //
-        // RIGHT HERE OUR INDEX IS WHAT WE WANT
-        //
-
-        if (currChunk == undefined)
-        {
-            continue;
-        }
-
-        if (y == mapHeight)
-        {
-            continue;
-        }
-
+    
+        x += currChunk[0].length;
         if (x == mapWidth)
         {
-          x = currChunk[0].length;
-          y += currChunk.length
-          console.log('new row ' + x + ' ' + y)
-        }
-        else if (x < mapWidth)
-        {
-          x += currChunk[0].length
-          console.log('currChunk length')
-          console.log(currChunk.length);
+            x = 0;
+            y += currChunk.length
         }
       }
 
