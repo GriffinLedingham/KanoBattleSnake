@@ -58,71 +58,82 @@ module.exports = {
      * @return {object}     chunk data counts, and suggest safest tile on the map
      */
     findSafestChunk: function(chunkData) {
+        var numChunks = chunkData.length
+        var chunkInfo = {
+            currentChunkIndex: 0,
+            targetChunk: 0
+        }
 
-        var length = chunkData.length
-        var chunkCounts = [0,0]
-        var currChunk;
-        for (var i = 0; i < length; i++)
-        {
-          var currChunkData = _.flatten(chunkData[i])
-          var chunkLength = currChunkData.length
+        var chunkCounts = []
+        var chunkScores = []
 
-          var count = [0,0,0,0,0,0,0,0]
-          for (var j = 0; j < chunkLength; j++)
-          {
-            switch(currChunkData[j]) {
-              case config.walkable:
-                count[config.walkable] += 1
-                break
-              case config.food:
-                count[config.food] += 1
-                break;
-              case config.ownSnakeBody:
-                count[config.ownSnakeBody] += 1
-                break;
-              case config.oppsnakeBody:
-                count[config.oppSnakeBody] += 1
-                break;
-              case config.ownHead:
-                count[config.ownHead] += 1
-                chunkCounts[0] = _.cloneDeep(i)
-                break;
-              case config.ownTail:
-                count[config.ownTail] += 1
-                break;
-              case config.oppHead:
-                count[config.oppHead] += 1
-                break;
-              case config.oppTail:
-                count[config.oppTail] += 1
-                break;
+        for(var i = 0; i < numChunks; i++) {
+            var itChunkData = _.flatten(chunkData[i])
+            var itChunkLength = itChunkData.length
+            var itChunkScore = 0
+
+            var itCounts = {
+
             }
-          }
-          chunkCounts.push(_.cloneDeep(count))
+
+            itCounts[config.walkable] = 0
+            itCounts[config.food] = 0
+            itCounts[config.ownSnakeBody] = 0
+            itCounts[config.ownHead] = 0
+            itCounts[config.ownTail] = 0
+            itCounts[config.oppSnakeBody] = 0
+            itCounts[config.oppHead] = 0
+            itCounts[config.oppTail] = 0
+
+            for (var j = 0; j < itChunkLength; j++) {
+                switch (itChunkData[j]) {
+                    case config.walkable:
+                        itCounts[config.walkable] += 1
+                        itChunkScore++
+                        break
+                    case config.food:
+                        itCounts[config.food] += 1
+                        itChunkScore++
+                        break;
+                    case config.ownSnakeBody:
+                        itCounts[config.ownSnakeBody] += 1
+                        break;
+                    case config.oppsnakeBody:
+                        itCounts[config.oppSnakeBody] += 1
+                        break;
+                    case config.ownHead:
+                        itCounts[config.ownHead] += 1
+                        // This is the chunk our head is in
+                        currentChunkIndex = i
+                        break;
+                    case config.ownTail:
+                        itCounts[config.ownTail] += 1
+                        itChunkScore++
+                        break;
+                    case config.oppHead:
+                        itCounts[config.oppHead] += 1
+                        break;
+                    case config.oppTail:
+                        itCounts[config.oppTail] += 1
+                        break;
+                }
+            }
+
+            chunkCounts.push( itCounts )
+            chunkScores.push( itChunkScore )
         }
 
-        var currFoodCount = 0;
-        var prevFoodCount = 0;
-        var currSafeCount = 0;
-        var prevSafeCount = 0;
-        for (var i = 0; i < length; i++)
-        {
-          var index = i+2;
-          currFoodCount = chunkCounts[index][config.food]
-          currSafeCount = chunkCounts[index][config.walkable] +
-                          chunkCounts[index][config.food] +
-                          chunkCounts[index][config.ownHead] +
-                          chunkCounts[index][config.ownTail] +
-                          chunkCounts[index][config.ownSnakeBody];
-
-          if (i > 0 && (currSafeCount > prevSafeCount || (currSafeCount == prevSafeCount && currFoodCount > prevFoodCount))) {
-
-               chunkCounts[1] = i
-          }
-
-          prevSafeCount = currSafeCount
-          prevFoodCount = currFoodCount
+        var bestChunkScore = false
+        var bestChunkIndex = false
+        for(var i = 0; i<chunkScores.length;i++) {
+            if(chunkScores[i] > bestChunkScore || bestChunkScore == false) {
+                bestChunkScore = chunkScores[i]
+                bestChunkIndex = i
+            }
         }
+
+        // Overwrite this for return
+        chunkCounts = [chunkInfo.currentChunkIndex, bestChunkIndex]
 
         return chunkCounts
       },
@@ -154,24 +165,30 @@ module.exports = {
       var x = floor(xLength / 2);
       var y = floor(yLength / 2);
 
-      var point = [-1, -1]
-      var currPointData
-      while (true) {
-        currPointData = safeChunk[x][y]
-        if (currPointData < config.oppSnakeBody)
-        {
-          var safeSidePoints = 0
-          if (safeChunk[x-1][y] < config.oppSnakeBody &&
-              safeChunk[x][y-1] < config.oppSnakeBody &&
-              safeChunk[x+1][y] < config.oppSnakeBody &&
-              safeChunk[x][y+1] < config.oppSnakeBody) {
-              point = [x, y]
-          }
-          break;
-        }
-        x = floor(rand() * xLength) + 1
-        y = floor(rand() * yLength) + 1
-      }
+      var point = [x,y]
+
+      // Comment this out for now cause broken
+      //
+      //
+      //
+      // var currPointData
+      // while (true) {
+      //   currPointData = safeChunk[x][y]
+      //   if (currPointData < config.oppSnakeBody)
+      //   {
+      //     var safeSidePoints = 0
+      //     if (safeChunk[x-1][y] < config.oppSnakeBody &&
+      //         safeChunk[x][y-1] < config.oppSnakeBody &&
+      //         safeChunk[x+1][y] < config.oppSnakeBody &&
+      //         safeChunk[x][y+1] < config.oppSnakeBody) {
+      //         point = [x, y]
+      //     }
+      //     break;
+      //   }
+      //   x = floor(rand() * xLength) + 1
+      //   y = floor(rand() * yLength) + 1
+      // }
+
       return this.convertChunkPointToGridPoint(chunkData, index, point, mapWidth, mapHeight);
     },
 
@@ -200,10 +217,10 @@ module.exports = {
 
       let xLength = 0
 
-      while ( currIndex < index) 
+      while ( currIndex < index)
       {
         var currChunk = chunkData[currIndex++]
-    
+
         x += currChunk[0].length;
         if (x == mapWidth)
         {
