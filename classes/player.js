@@ -123,7 +123,7 @@ class Player {
         console.log('currChunk = ' + currChunk);
         console.log('safeChunk = ' + safeChunkId);
 
-        var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead(), map.width)
+        var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead(), map.width, map.height)
 
         var logging = ''
         if(canEatFood) {

@@ -220,7 +220,7 @@ module.exports = {
 
         if (x == mapWidth)
         {
-          x = 0;
+          x = currChunk[0].length;
           y += currChunk.length
           console.log('new row ' + x + ' ' + y)
         }
@@ -241,14 +241,14 @@ module.exports = {
       * @param  {object} chunkData contains each chunks data of each snake, and food
       * @return {object}     chunk data counts, and suggest safest tile on the map
       */
-    isHeadNearCenterOfChunk: function(chunkData, index, head, mapWidth) {
+    isHeadNearCenterOfChunk: function(chunkData, index, head, mapWidth, mapHeight) {
       var safeChunk = chunkData[index]
       var headX = head['x'];
       var headY = head['y'];
 
       var centerX = floor(chunkData[0].length / 2);
       var centerY = floor(safeChunk.length / 2);
-      var centerChunkGridPosition = this.convertChunkPointToGridPoint(chunkData, index, [centerX, centerY], mapWidth)
+      var centerChunkGridPosition = this.convertChunkPointToGridPoint(chunkData, index, [centerX, centerY], mapWidth, mapHeight)
       centerX = centerChunkGridPosition['x']
       centerY = centerChunkGridPosition['y']
 
