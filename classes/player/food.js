@@ -47,11 +47,13 @@ module.exports = {
    * @param  {object} map The map class instance of the current game
    * @return {object}     Coords for the nearest food
    */
-  findClosestFoodAStar: function(foods,head,tail,map,canEatFood, chunkScores) {
+  findClosestFoodAStar: function(foods,head,tail,map,canEatFood, chunkScores, currentChunkIndex) {
     // Initial arbitrary value of the closest food, there
     // will always be one closer than 1000..
     var minDist = 1000
     var closestCoords = false
+
+    var foundGodChunkFood = false
 
     for(var i = 0;i<foods.length;i++) {
       var food = foods[i]
@@ -69,40 +71,57 @@ module.exports = {
       // Path doesn't exist, break out
       if(thisDist == 0) continue
 
-      // TODO: See if this food has path to corners, if not
-      // also break out.
-
-      // If this food is closer, store it as new closest
-      //calculate best chunk to get food
-      var foodChunkScore = 0;
       var highestChunkScoreIndex = 0;
       var highestChunkScore = 0;
-      
 
-      var chunkId = 0;
-
-      var previousFoodChunkScore = 0;
-
-      var posChunkId = chunkHelper.isPosInChunk(thisDist['x'], thisDist['y'], map.width, map.chunkData, j))
+      console.log()
       for (var j = 0; j < chunkScores.length; j++)
       {
+        if(j == currentChunkIndex) continue
         if (chunkScores[j] > highestChunkScore)
         {
             highestChunkScore = chunkScores[j]
             highestChunkScoreIndex = j
         }
-        
       }
-
+      var posChunkId = chunkHelper.isPosInChunk(food['x'], food['y'], map.width, map.chunkData, highestChunkScoreIndex)
+console.log('Pos Chunk ID' + posChunkId)
       if(posChunkId == highestChunkScoreIndex)
       {
         closestCoords = {x:food['x'], y: food['y']}
         minDist = thisDist
+        foundGodChunkFood = true
       }
     }
 
-    console.log('chunkId ' + chunkId + ' =================================================================================' )
-    console.log(closestCoords)
+    if(!foundGodChunkFood) {
+        for(var i = 0;i<foods.length;i++) {
+            var food = foods[i]
+
+            if(
+                !moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,food,tail)
+                && !moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,food,tail)
+                && !moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,food,tail)
+                && !moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,food,tail)
+            ) {
+                continue
+            }
+            var thisDist = moveHelper.getPathLengthToPoint(food,map,canEatFood,head,tail)
+
+            // Path doesn't exist, break out
+            if(thisDist == 0) continue
+
+            // TODO: See if this food has path to corners, if not
+            // also break out.
+
+            // If this food is closer, store it as new closest
+            if(thisDist < minDist) {
+                closestCoords = {x:food['x'], y: food['y']}
+                minDist = thisDist
+            }
+        }
+    }
+
     // Return closest food
     return {coords:closestCoords,dist:minDist}
   },

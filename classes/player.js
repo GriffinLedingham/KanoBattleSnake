@@ -99,7 +99,7 @@ class Player {
       var canEatFood = false
 
       // Use A* to find closest food, by path distance
-      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,true, chunkScores)
+      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,true, chunkScores, currChunk)
 
       destPoint = closestFood.coords
       // If a path to a nearest food exists, let's try and
@@ -291,7 +291,7 @@ class Player {
     //        be here next tick, so the space is actually safe (as along
     //        as they don't have a food within 1-tile's reach of their head)
 
-    
+
 
 
     if(safeSpace.indexOf(leftGrid) == -1 && (!this.spaceIsAss(leftGridCoords) || !this.canTouchTail())) this.addBanDir('left','space is filled')
