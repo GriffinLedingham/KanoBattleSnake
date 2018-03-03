@@ -6,8 +6,8 @@ const Map     = require('./classes/map')
 function start(game) {
   var map = new Map(game)
   return {
-    name: 'LUL',
-    color: '#DFAB2B',
+    name: 'cLUL',
+    color: '#5734a7',
   }
 }
 
