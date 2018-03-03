@@ -9,6 +9,7 @@
 
 const _           = require('lodash')
 const moveHelper  = require('../movement')
+const chunkHelper  = require('../player/chunk')
 
 module.exports = {
 
@@ -46,7 +47,7 @@ module.exports = {
    * @param  {object} map The map class instance of the current game
    * @return {object}     Coords for the nearest food
    */
-  findClosestFoodAStar: function(foods,head,tail,map,canEatFood) {
+  findClosestFoodAStar: function(foods,head,tail,map,canEatFood, chunkScores) {
     // Initial arbitrary value of the closest food, there
     // will always be one closer than 1000..
     var minDist = 1000
@@ -55,14 +56,14 @@ module.exports = {
     for(var i = 0;i<foods.length;i++) {
       var food = foods[i]
 
-      // if(
-      //   !moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,food,tail)
-      //   && !moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,food,tail)
-      //   && !moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,food,tail)
-      //   && !moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,food,tail)
-      // ) {
-      //   continue
-      // }
+      if(
+        !moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,food,tail)
+        && !moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,food,tail)
+        && !moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,food,tail)
+        && !moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,food,tail)
+      ) {
+        continue
+      }
       var thisDist = moveHelper.getPathLengthToPoint(food,map,canEatFood,head,tail)
 
       // Path doesn't exist, break out
@@ -72,12 +73,36 @@ module.exports = {
       // also break out.
 
       // If this food is closer, store it as new closest
-      if(thisDist < minDist) {
+      //calculate best chunk to get food
+      var foodChunkScore = 0;
+      var highestChunkScoreIndex = 0;
+      var highestChunkScore = 0;
+      
+
+      var chunkId = 0;
+
+      var previousFoodChunkScore = 0;
+
+      var posChunkId = chunkHelper.isPosInChunk(thisDist['x'], thisDist['y'], map.width, map.chunkData, j))
+      for (var j = 0; j < chunkScores.length; j++)
+      {
+        if (chunkScores[j] > highestChunkScore)
+        {
+            highestChunkScore = chunkScores[j]
+            highestChunkScoreIndex = j
+        }
+        
+      }
+
+      if(posChunkId == highestChunkScoreIndex)
+      {
         closestCoords = {x:food['x'], y: food['y']}
         minDist = thisDist
       }
     }
 
+    console.log('chunkId ' + chunkId + ' =================================================================================' )
+    console.log(closestCoords)
     // Return closest food
     return {coords:closestCoords,dist:minDist}
   },

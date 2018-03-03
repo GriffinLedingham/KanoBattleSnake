@@ -1,6 +1,6 @@
 module.exports = {
   // What HP we should start looking for food at
-  minHealthToFindFood: 30,
+  minHealthToFindFood: 50,
 
   // How much extra health we should give, on top of
   // closest food before we start heading there.

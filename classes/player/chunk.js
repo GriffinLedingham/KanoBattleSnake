@@ -93,14 +93,15 @@ module.exports = {
                         break
                     case config.food:
                         itCounts[config.food] += 1
-                        itChunkScore += 2
+                        itChunkScore += 5
                         break;
                     case config.ownSnakeBody:
                         itCounts[config.ownSnakeBody] += 1
+                        itChunkScore++
                         break;
                     case config.oppsnakeBody:
                         itCounts[config.oppSnakeBody] += 1
-                        itChunkScore -= 1
+                        itChunkScore -= 10
                         break;
                     case config.ownHead:
                         itCounts[config.ownHead] += 1
@@ -110,7 +111,7 @@ module.exports = {
                         break;
                     case config.ownTail:
                         itCounts[config.ownTail] += 1
-                        itChunkScore++
+                        itChunkScore += 3
                         break;
                     case config.oppHead:
                         itCounts[config.oppHead] += 1
@@ -118,7 +119,7 @@ module.exports = {
                         break;
                     case config.oppTail:
                         itCounts[config.oppTail] += 1
-                        itChunkScore -= 2
+                        itChunkScore -= 10
                         break;
                 }
             }
@@ -137,7 +138,7 @@ module.exports = {
         }
 
         // Overwrite this for return
-        chunkCounts = [chunkInfo.currentChunkIndex, bestChunkIndex]
+        chunkCounts = [chunkInfo.currentChunkIndex, bestChunkIndex, chunkScores]
 
         return chunkCounts
       },
@@ -147,12 +148,28 @@ module.exports = {
      * @param  {object} chunkData contains each chunks data of each snake, and food
      * @return {object}     chunk data counts, and suggest safest tile on the map
      */
-    isPosInChunk: function(x, y, tilesX, tilesY, chunksX, chunksY, chunkIndex) {
-      var tileChunkY = floor(y / tilesY) - 1
-      var tileChunkX = floor(x / tilesX) - 1
-      var currChunkIndex = (tileChunkY * chunksX) + tilesX
+    isPosInChunk: function(x, y, mapWidth, chunkData, chunkIndex) {
+        
+      var currIndex = 0
+      var currX = 0
+      var currChunkY = 0
+      while ( currIndex < chunkIndex)
+      {
+          var currChunk = chunkData[currIndex++]  
+          currX += currChunk[0].length;
+          if (currX == mapWidth)
+          {
+              currX = 0;
+              y += currChunk.length
+          }  
+          if (x <= currX && y < currY)
+          {
+              break;
+          }
+          currIndex++
+      }
 
-      return (currChunkIndex == chunkIndex)
+      return currIndex
     },
 
     /** Determine which chunk of the map contains the safest location
@@ -194,19 +211,6 @@ module.exports = {
       // }
 
       return this.convertChunkPointToGridPoint(chunkData, index, point, mapWidth, mapHeight);
-    },
-
-     /**
-     * Determine which chunk of the map contains the safest location
-     * @param  {object} chunkData contains each chunks data of each snake, and food
-     * @return {object}     chunk data counts, and suggest safest tile on the map
-     */
-    isPosInChunk: function(x, y, tilesX, tilesY, chunksX, chunksY, chunkIndex) {
-      var tileChunkY = floor(y / tilesY) - 1
-      var tileChunkX = floor(x / tilesX) - 1
-      var currChunkIndex = (tileChunkY * chunksX) + tilesX
-
-      return (currChunkIndex == chunkIndex)
     },
 
     /** Determine which chunk of the map contains the safest location
