@@ -104,7 +104,6 @@ class Player {
       // attempt to find a move to elsewhere on the grid
       // that doesn't trap us.
       if(destPoint != false) {
-        console.log('=Have Dest Point')
         var canEatFood = false
         var possibleDirs
 
@@ -318,7 +317,7 @@ class Player {
    */
   addBanDir(dir,reason) {
     if(config.enableLogging) {
-      if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
+      // if(reason != undefined) console.log(`Banning ${dir} because ${reason}`)
     }
     if(this.banDirs.indexOf(dir) == -1) this.banDirs.push(dir)
   }
@@ -337,9 +336,10 @@ class Player {
   // by a couple after eating food)
   canTouchTail() {
     var result = false
-    if(this.length > 3 && this.getHealth()<100) {
+    if(this.getLength() > 3 && this.getHealth()<100) {
       result = true
     }
+    console.log('Can touch tail: ' + result + ', health: ' + this.getHealth()+', length: ' + this.length)
     return result
   }
 

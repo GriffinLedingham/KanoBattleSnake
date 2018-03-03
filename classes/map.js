@@ -51,13 +51,6 @@ class Map {
       this.numChunksY = config.numRegChunksPerAxis
     }
 
-    console.log('---------')
-    console.log(this.numTilesPerChunksX)
-    console.log(this.numTilesPerChunksY)
-    console.log(this.numChunksX)
-    console.log(this.numChunksY)
-    console.log('~~~~~~~~~')
-
     //build the grid
     this.buildGrid()
   }
@@ -190,7 +183,8 @@ class Map {
    */
   getPathfinderGrid(canEatFood) {
     // Init new PF grid from transposed matrix
-    var grid = new PF.Grid(this.transposedGrid)
+    var grid = new PF.Grid(this.width, this.height, this.transposedGrid)
+
     // i is the grid's horizontal x-plane
     for(var i = 0;i<grid.nodes.length;i++) {
       // j is the grid's vertical y plane
@@ -199,23 +193,16 @@ class Map {
         // I have no fucking clue why this works.
         // This is such a hack...
         var gridTile
-        // if(this.height > this.width) {
-        //   gridTile = this.transposedGrid[j][i]
-        // } else {
-        //   gridTile = this.grid[i][j]
-        // }
+        if(this.height > this.width) {
+          gridTile = this.transposedGrid[j][i]
+        } else {
+          gridTile = this.grid[i][j]
+        }
 
         // This is a snek, set unwalkable
-        if(gridTile >= config.ownSnakeBody) {
-          grid.setWalkableAt(j,i,false)
-        }
-        // This is food, maybe walkable
-        else if(gridTile == config.food) {
-          if(canEatFood) {
+        if(gridTile == config.food) {
             grid.setWalkableAt(i,j,true)
-          } else {
-            grid.setWalkableAt(i,j,false)
-          }
+
         }
       }
     }

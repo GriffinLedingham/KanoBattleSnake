@@ -85,6 +85,7 @@ module.exports = {
     // Get a new pathfinding grid
     var grid = map.getPathfinderGrid(canEatFood)
 
+
     // Set our destination as walkable, as wel as our tail
     // console.log("destX: " + destPoint['x'] + " destY: " + destPoint['y'])
     //
@@ -95,6 +96,7 @@ module.exports = {
       grid.setWalkableAt(tail['x'],tail['y'],true)
     }
 
+    // console.log(map.printPathfinderGrid(grid))
     // Find path to destPoint using A*
     var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)
     // Does a path exist?
