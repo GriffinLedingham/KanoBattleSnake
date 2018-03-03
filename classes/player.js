@@ -289,12 +289,10 @@ class Player {
         // Get all directions next to head, and see if they have a snake head in
         // their radius
         var headsArr = []
-        console.log(map.transposedGrid)
         var workingGrid = map.transposedGrid
         for(var i = 0;i<workingGrid[0].length;i++) {
           for(var j = 0;j<workingGrid.length;j++) {
             if(workingGrid[j][i] == config.oppHead) {
-                console.log('found head at' + i + ',' + j)
                 headsArr.push({x:i,y:j})
             }
           }
