@@ -93,7 +93,7 @@ module.exports = {
                         break
                     case config.food:
                         itCounts[config.food] += 1
-                        itChunkScore++
+                        itChunkScore += 2
                         break;
                     case config.ownSnakeBody:
                         itCounts[config.ownSnakeBody] += 1
@@ -106,6 +106,7 @@ module.exports = {
                         itCounts[config.ownHead] += 1
                         // This is the chunk our head is in
                         currentChunkIndex = i
+                        itChunkScore += 10
                         break;
                     case config.ownTail:
                         itCounts[config.ownTail] += 1
