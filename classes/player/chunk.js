@@ -100,6 +100,7 @@ module.exports = {
                         break;
                     case config.oppsnakeBody:
                         itCounts[config.oppSnakeBody] += 1
+                        itChunkScore -= 1
                         break;
                     case config.ownHead:
                         itCounts[config.ownHead] += 1
@@ -112,9 +113,11 @@ module.exports = {
                         break;
                     case config.oppHead:
                         itCounts[config.oppHead] += 1
+                        itChunkScore -= 10
                         break;
                     case config.oppTail:
                         itCounts[config.oppTail] += 1
+                        itChunkScore -= 2
                         break;
                 }
             }
