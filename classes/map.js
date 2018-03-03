@@ -199,11 +199,11 @@ class Map {
         // I have no fucking clue why this works.
         // This is such a hack...
         var gridTile
-        if(this.height > this.width) {
-          gridTile = this.transposedGrid[j][i]
-        } else {
-          gridTile = this.grid[i][j]
-        }
+        // if(this.height > this.width) {
+        //   gridTile = this.transposedGrid[j][i]
+        // } else {
+        //   gridTile = this.grid[i][j]
+        // }
 
         // This is a snek, set unwalkable
         if(gridTile >= config.ownSnakeBody) {

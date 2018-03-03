@@ -55,15 +55,14 @@ module.exports = {
     for(var i = 0;i<foods.length;i++) {
       var food = foods[i]
 
-      if(
-        !moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,food,tail)
-        && !moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,food,tail)
-        && !moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,food,tail)
-        && !moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,food,tail)
-      ) {
-        continue
-      }
-
+      // if(
+      //   !moveHelper.hasPathToPoint({x:map.width-1,y:map.height-1},map,canEatFood,food,tail)
+      //   && !moveHelper.hasPathToPoint({x:map.width-1,y:0},map,canEatFood,food,tail)
+      //   && !moveHelper.hasPathToPoint({x:0,y:map.height-1},map,canEatFood,food,tail)
+      //   && !moveHelper.hasPathToPoint({x:0,y:0},map,canEatFood,food,tail)
+      // ) {
+      //   continue
+      // }
       var thisDist = moveHelper.getPathLengthToPoint(food,map,canEatFood,head,tail)
 
       // Path doesn't exist, break out

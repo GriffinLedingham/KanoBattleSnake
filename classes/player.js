@@ -91,11 +91,12 @@ class Player {
       var closestFood = false
       var destPoint
 
+      var canEatFood = false
+
       // Use A* to find closest food, by path distance
-      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,canEatFood)
+      closestFood = foodHelper.findClosestFoodAStar(map.food,this.getHead(),this.getAss(),map,true)
 
       destPoint = closestFood.coords
-
       // If a path to a nearest food exists, let's try and
       // make our way over to it.
       //
@@ -103,6 +104,7 @@ class Player {
       // attempt to find a move to elsewhere on the grid
       // that doesn't trap us.
       if(destPoint != false) {
+        console.log('=Have Dest Point')
         var canEatFood = false
         var possibleDirs
 
@@ -118,10 +120,6 @@ class Player {
         var chunkCountData = chunkHelper.findSafestChunk(map.chunkData)
         var currChunk = chunkCountData[0]
         var safeChunkId = chunkCountData[1]
-
-        console.log('chunkCountData = ' + chunkCountData);
-        console.log('currChunk = ' + currChunk);
-        console.log('safeChunk = ' + safeChunkId);
 
         var isNearCenterOfChunk = chunkHelper.isHeadNearCenterOfChunk(map.chunkData, safeChunkId, this.getHead(), map.width, map.height)
 
@@ -201,6 +199,7 @@ class Player {
       //
       // Pick a random one ¯\_(ツ)_/¯
       if(result == false && retry) {
+        console.log('---- Is Random')
         result = legalDirs[Math.floor(Math.random()*legalDirs.length)]
       } else if(result == false) {
         retry = true

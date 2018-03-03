@@ -232,9 +232,6 @@ module.exports = {
             y += currChunk.length
         }
       }
-
-      console.log('final point ')
-      console.log({x:point[0] + x, y: point[1]})
       return {x:point[0] + x, y: point[1] + y}
     },
 

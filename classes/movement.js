@@ -97,7 +97,6 @@ module.exports = {
 
     // Find path to destPoint using A*
     var path = finder.findPath(head['x'], head['y'], destPoint['x'], destPoint['y'], grid)
-
     // Does a path exist?
     return path
   },
