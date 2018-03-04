@@ -6,7 +6,7 @@ module.exports = {
   // closest food before we start heading there.
   //
   // ie. Food is 10 squares away, start moving at 20 HP
-  foodSearchPaddingHP: 10,
+  foodSearchPaddingHP: 15,
 
   // How far away from closest food we should idle
   distanceToWaitFromFood: 10,
