@@ -8,7 +8,7 @@ function start(game) {
   return {
     name: 'Opie',
     color: '#000000',
-    head_url: 'https://uploads-ssl.webflow.com/5a4eab84b1bb1a000195e0c9/5a56c520875dc5000136d0ff_Kano-Logo-180x120.png'
+    head_url: 'https://scontent.fyvr2-1.fna.fbcdn.net/v/t1.0-9/25348649_10156073512884180_2295743607504416645_n.jpg?oh=041e05e484bb6063fe23aefa56f871f7&oe=5B08D59D'
   }
 }
 
