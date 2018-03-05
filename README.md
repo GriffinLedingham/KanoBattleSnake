@@ -1,5 +1,5 @@
 # KanoBattleSnake
-This is the Team Kano snake for BattleSnake 2018 (https://battlesnake.io). The snake is written in Node.js by myself and @BBlashko, and finished 4th in the Intermediate division.
+This is the Team Kano snake for BattleSnake 2018 (https://battlesnake.io). The snake is written in Node.js by myself and [@BBlashko](https://github.com/BBlashko), and finished 4th in the Intermediate division.
 
 ## Usage
  * `npm install`
